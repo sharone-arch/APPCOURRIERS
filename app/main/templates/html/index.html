@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion des Courriers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: "Rubik", sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        img {
+            display: block;
+            margin: 16px auto 0;
+            width: 300px;
+        }
+        .content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            font-weight: 400;
+            text-align: center;
+            font-size: 20px;
+            padding: 40px 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .welcome {
+            font-size: 36px;
+            color: #2a282a;
+            margin: 20px 0;
+        }
+        .text-content {
+            max-width: 680px;
+            margin: 0 auto;
+            color: #000000;
+        }
+        span {
+            font-weight: 700;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 17px 41px;
+            background-color: #0047B1;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .footer {
+            margin-top: 36px;
+            color: #828282;
+        }
+        .footer a {
+            color: #828282;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 768px) {
+            img {
+                width: 200px;
+            }
+            .content {
+                width: 90%;
+                font-size: 16px;
+                padding: 30px 15px;
+            }
+            .welcome {
+                font-size: 28px;
+                margin: 30px 0 20px;
+            }
+            .text-content {
+                max-width: 96%;
+            }
+            .button {
+                padding: 12px 38px;
+                width: 100%;
+                max-width: 180px;
+            }
+            .footer {
+                margin-top: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="content">
+        <img src="/static/logo.png" alt="Logo SGC">
+        <p class="welcome">Bienvenue sur le Système de Gestion des Courriers</p>
+        <p class="text-content">
+            Cliquez sur le bouton ci-dessous pour accéder à la documentation de l’API version <span>1.0.0</span> de la <span>gestion des courriers</span>.
+        </p>
+        <a class="button" href="/api/v1/docs">Accéder à l'API</a>
+        <p class="footer">
+            Développé par <a href="#">MILA SHARONE</a>
+        </p>
+    </div>
+
+</body>
+</html>
