@@ -36,31 +36,9 @@ class UserStatus(str, Enum):
 
 
 class User(Base):
-    """
-    Model representing a user in the system.
-
-    Attributes:
-        uuid (str): Unique identifier for the user.
-        email (str): User's email address (unique).
-        country_code (str): Country code associated with the phone number.
-        phone_number (str): User's phone number.
-        full_phone_number (str): Full phone number with country code.
-        first_name (str): User's first name.
-        last_name (str): User's last name.
-        password_hash (str): Hashed password of the user.
-        role (str): User role (ADMIN or SUPER_ADMIN).
-        otp (str): One-time password code (optional).
-        otp_expired_at (datetime): Expiration date of the OTP.
-        otp_password (str): One-time password for authentication (optional).
-        otp_password_expired_at (datetime): Expiration date of the OTP password.
-        status (str): User status (ACTIVED, UNACTIVED, etc.).
-        created_at (datetime): Timestamp of account creation.
-        updated_at (datetime): Timestamp of the last account update.
-    """
-
     _tablename_ = "users"
 
-    uuid = Column(String, primary_key=True, index=True)  # Unique user identifier
+    uuid = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)  # Unique email address
     country_code = Column(String(5), nullable=False, default="", index=True)  # Country code
     phone_number = Column(String(20), nullable=False, default="", index=True)  # Phone number
