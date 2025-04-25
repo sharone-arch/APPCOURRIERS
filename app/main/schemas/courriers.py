@@ -25,6 +25,9 @@ class CourriersBaseUpdate(BaseModel):
     contenu:Optional[str]=None
    
 
+class CourriersDelete(BaseModel):
+    uuid: str
+
 class CourriersResponse(BaseModel):
     uuid:str
     titre:str

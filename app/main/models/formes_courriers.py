@@ -9,7 +9,7 @@ from app.main.models.db.base_class import Base
 from enum import Enum
 
 
-class FormesCourier(Base):
+class FormesCourriers(Base):
     __tablename__ = "formes_couriers"
 
     uuid = Column(String, primary_key=True, unique=True)

@@ -9,18 +9,22 @@ from app.main.schemas.user import UserCreate
 
 
 
-class FormesCourierBase(BaseModel):
+class FormesCourriersBase(BaseModel):
     name:str
 
 
-class FormesCourierCreate(FormesCourierBase):
+class FormesCourriersCreate(FormesCourriersBase):
     pass
 
-class FormesCourierUpdate(BaseModel):
+class FormesCourriersUpdate(BaseModel):
     uuid:str
     name:Optional[str]=None
+
+class FormesCourriersDelete(BaseModel):
+    uuid: str
+
     
-class FormesCourierResponse(BaseModel):
+class FormesCourriersResponse(BaseModel):
     uuid:str
     name:str
     created_by:UserCreate
@@ -28,12 +32,12 @@ class FormesCourierResponse(BaseModel):
     updated_at:datetime
     model_config = ConfigDict(from_attributes=True)
 
-class FormesCourierResponseList(BaseModel):
+class FormesCourriersResponseList(BaseModel):
     total:int
     pages:int
     per_page:int
     current_page :int
-    data : List[FormesCourierResponse]
+    data : List[FormesCourriersResponse]
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -9,30 +9,35 @@ from app.main.schemas.user import UserCreate
 
 
 
-class NatureCourierBase(BaseModel):
+class NatureCourriersBase(BaseModel):
     name:str
 
 
-class NatureCourierCreate(NatureCourierBase):
+class NatureCourriersCreate(NatureCourriersBase):
     pass
 
-class NatureCourierUpdate(BaseModel):
+class NatureCourriersUpdate(BaseModel):
     uuid:str
     name:Optional[str]=None
+
     
-class NatureCourierResponse(BaseModel):
+class NatureCourriersDelete(BaseModel):
+    uuid: str
+
+    
+class NatureCourriersResponse(BaseModel):
     uuid:str
     name:str
     created_at: datetime
     updated_at:datetime
     model_config =ConfigDict(from_attributes=True)
 
-class NatureCourierResponseList(BaseModel):
+class NatureCourriersResponseList(BaseModel):
     total:int
     pages:int
     per_page:int
     current_page :int
-    data : List[NatureCourierResponse]
+    data : List[NatureCourriersResponse]
 
     model_config = ConfigDict(from_attributes=True)
 

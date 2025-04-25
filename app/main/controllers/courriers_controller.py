@@ -10,68 +10,64 @@ from app.main.core.security import create_access_token, get_password_hash
 from app.main.core.config import Config
 from app.main.core.dependencies import TokenRequired
 
-router = APIRouter(prefix="/canaux-reception-courrier", tags=["canaux_reception_courrier"])
 
+
+router = APIRouter(prefix="/courriers", tags=["courriers"])
 @router.post("/create", response_model=schemas.Msg)
 def create_courrier_channel(
     *,
     db: Session = Depends(get_db),
-    obj_in: schemas.CanauxReceptionCourierCreate,
+    obj_in: schemas.CourriersBaseCreate,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    exist_name = crud.canaux.get_by_name(db=db, name=obj_in.name)
-    if exist_name:
+    exist_uuid = crud.Courriers.get_by_uuid(db=db, name=obj_in.uuid)
+    if exist_uuid:
         raise HTTPException(status_code=409, detail=__(key="courrier-channel-already-exists"))
 
-    crud.canaux.create(db, obj_in=obj_in, created_by=current_user.uuid)
+    crud.Courriers.create(db, obj_in=obj_in, created_by=current_user.uuid)
     return schemas.Msg(message=__(key="courrier-channel-created-successfully"))
 
-@router.get("/get_all", response_model=List[schemas.CanauxReceptionCourierResponse]) # type: ignore
-def get_all_Courriers(
-    *,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
-):
-    return crud.canaux.get_all(db=db)
 
 
 
-
-@router.put("/update",response_model=schemas.CanauxReceptionCourierResponse)
+@router.put("/update",response_model=schemas.CourriersResponse)
 def update_canaux(
     *,
     db: Session = Depends(get_db),
-    obj_in:schemas.CanauxReceptionCourierUpdate,
+    obj_in:schemas.TypeCourierUpdate,
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     added_by_uuid = current_user.uuid
     return crud.canaux(db=db,obj_in=obj_in,added_by_uuid=added_by_uuid)
 
 
+
 @router.put("/soft-delete", response_model=schemas.Msg)
-def soft_delete_canaux(
+def soft_delete_Courriers(
     *,
     db: Session = Depends(get_db),
-    obj_in: schemas.CanauxReceptionCourierDelete,
+    obj_in: schemas.CourriersDelete,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    crud.canaux.soft_delete(db=db, uuid=obj_in.uuid)
+    crud.Courriers.soft_delete(db=db, uuid=obj_in.uuid)
     return schemas.Msg(message=__(key="courrier-channel-deleted-successfully"))
 
 
 
 @router.delete("/delete", response_model=schemas.Msg)
-def delete_canaux(
+def delete_Courriers(
     *,
     db: Session = Depends(get_db),
-    obj_in: schemas.CanauxReceptionCourierDelete,
+    obj_in: schemas.CourriersDelete,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    crud.canaux.delete(db=db, uuid=obj_in.uuid)
+    crud.Courriers.delete(db=db, uuid=obj_in.uuid)
     return schemas.Msg(message=__(key="courrier-channel-deleted-successfully"))
 
-@router.get("/get_all_canaux-receptions", response_model=None)
-def get_all_canaux_receptions(
+
+
+@router.get("/get_all_courriers", response_model=None)
+def get_all_Courriers(
     *,
     db: Session = Depends(get_db),
     page: int =  1,
@@ -92,3 +88,9 @@ def get_all_canaux_receptions(
 
 
    
+
+
+
+
+
+

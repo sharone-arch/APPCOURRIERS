@@ -36,7 +36,7 @@ class UserStatus(str, Enum):
 
 
 class User(Base):
-    _tablename_ = "users"
+    __tablename__ = "users"
 
     uuid = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)  # Unique email address

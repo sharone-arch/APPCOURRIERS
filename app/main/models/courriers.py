@@ -25,4 +25,5 @@ class Courriers(Base):
     date_arrivee = Column(DateTime, default=func.now())  # Account creation timestamp
     date_depart = Column(DateTime, nullable=True)  # Account creation timestamp
     contenu = Column(String,index=True,nullable=False)
+    is_deleted = Column(Boolean, default=False)
     entite_reception = Column(String, index=True,nullable=False,default=EntiteReception.BUREAU_ORDRE)
