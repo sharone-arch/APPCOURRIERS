@@ -34,7 +34,7 @@ def create_courrier_channel(
 def update_canaux(
     *,
     db: Session = Depends(get_db),
-    obj_in:schemas.TypeCourierUpdate,
+    obj_in:schemas.TypeCourriersUpdate,
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     added_by_uuid = current_user.uuid

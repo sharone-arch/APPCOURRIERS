@@ -18,7 +18,7 @@ def register(
     *,
     db: Session = Depends(get_db),
     obj_in:schemas.UserCreate,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+    # current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
     exist_phone = crud.user.get_by_phone_number(db=db, phone_number=f"{obj_in.country_code}{obj_in.phone_number}")
     if exist_phone:
