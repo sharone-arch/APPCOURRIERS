@@ -34,7 +34,8 @@ class CRUDTypeCourriers(CRUDBase[models.TypeCourriers, schemas.TypeCourriersCrea
     
 
     @classmethod
-    def update(cls, db: Session, *, uuid: str, obj_in: schemas.TypeCourriersUpdate) -> models.TypeCourriers:
+    def update(cls, db: Session, *, uuid: str, obj_in: schemas.TypeCourriersUpdate, added_by_uuid=None) -> models.TypeCourriers:
+    
         Type = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
         if not   Type:
             raise HTTPException(status_code=404, detail=__(key="Type-not-found"))

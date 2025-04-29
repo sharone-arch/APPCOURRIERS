@@ -15,8 +15,9 @@ class FormesCourriers(Base):
     uuid = Column(String, primary_key=True, unique=True)
     name = Column(String, nullable=False)
 
-    created_by = Column(String, ForeignKey('users.uuid',ondelete="CASCADE",onupdate="CASCADE"), nullable=True)
-    creator = relationship("User", foreign_keys=[created_by], uselist=False)
+    added_by = Column(String, ForeignKey("users.uuid"), nullable=False)
+    creator = relationship("User", foreign_keys=[added_by])
+    
     is_deleted = Column(Boolean, default=False)
     
 

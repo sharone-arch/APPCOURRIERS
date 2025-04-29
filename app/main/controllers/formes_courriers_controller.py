@@ -18,12 +18,14 @@ def create_forme_courrier(
     obj_in: schemas.FormesCourriersCreate,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    exist_uuid = crud.Forme.get_by_uuid(db=db, name=obj_in.uuid)
-    if exist_uuid:
+    exist_name = crud.formes_couriers.get_by_name(db=db, name=obj_in.name)
+    if exist_name:
         raise HTTPException(status_code=409, detail=__(key="forme-courrier-already-exists"))
 
-    crud.Forme.create(db, obj_in=obj_in, created_by=current_user.uuid)
+    crud.formes_couriers.create(db, obj_in=obj_in, added_by=current_user.uuid)
     return schemas.Msg(message=__(key="forme-courrier-created-successfully"))
+
+
 
 @router.put("/update",response_model=schemas.FormesCourriersResponse)
 def update_Forme(
@@ -33,7 +35,7 @@ def update_Forme(
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     added_by_uuid = current_user.uuid
-    return crud.Forme(db=db,obj_in=obj_in,added_by_uuid=added_by_uuid)
+    return crud.formes_couriers.update(db=db,obj_in=obj_in,added_by=current_user.uuid)
 
 
 @router.put("/soft-delete", response_model=schemas.Msg)
@@ -43,7 +45,7 @@ def soft_delete_Forme(
     obj_in: schemas.FormesCourriersDelete,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    crud.Forme.soft_delete(db=db, uuid=obj_in.uuid)
+    crud.formes_couriers.soft_delete(db=db, uuid=obj_in.uuid)
     return schemas.Msg(message=__(key="forme-courrier-deleted-successfully"))
 
 
@@ -54,7 +56,7 @@ def delete_Forme(
     obj_in: schemas.FormesCourriersDelete,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    crud.Forme.delete(db=db, uuid=obj_in.uuid)
+    crud.formes_couriers.delete(db=db, uuid=obj_in.uuid)
     return schemas.Msg(message=__(key="forme-courrier-deleted-successfully"))
 
 
@@ -67,7 +69,7 @@ def get_all_Formes(
     order_field: Optional[str] = None,
     keyword: Optional[str] = None,
 ):
-     return crud.Forme.get_many(
+     return crud.formes_couriers.get_many(
         db=db,
         page=page,
         per_page=per_page,

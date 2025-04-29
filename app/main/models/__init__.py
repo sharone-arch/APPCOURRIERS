@@ -8,3 +8,4 @@ from .canaux_reception_courriers import *
 from .type_courriers import *
 from .courriers import *
 from .senders import *
+from .receivers import *
