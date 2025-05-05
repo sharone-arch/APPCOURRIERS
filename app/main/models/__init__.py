@@ -2,10 +2,10 @@ from .db.base_class import Base
 from .backlist_token import BlacklistToken
 from .storage import *
 from .users import *
-from .nature_courriers import *
-from .formes_courriers import *
-from .canaux_reception_courriers import *
-from .type_courriers import *
+from .nature import *
+from .formes import *
+from .canaux_reception import *
+from .type import *
 from .courriers import *
 from .departements import *
 from .externes import *

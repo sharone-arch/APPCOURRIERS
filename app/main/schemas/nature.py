@@ -8,6 +8,11 @@ from app.main.schemas.user import UserCreate
 
 
 
+class NatureCourriersSlim(BaseModel):
+    uuid:str
+    name:str
+    model_config =ConfigDict(from_attributes=True)
+
 
 class NatureCourriersBase(BaseModel):
     name:str

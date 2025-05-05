@@ -28,8 +28,8 @@ class UpdateStatus(BaseModel):
 
 class ExterneDelete(BaseModel):
     uuid :str
-
-
+class ExterneInDB(ExterneBase):
+    uuid: str  
 class Externe(BaseModel):
     uuid:str
     name: str

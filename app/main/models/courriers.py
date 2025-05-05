@@ -38,8 +38,8 @@ class Courriers(Base):
     document_uuid = Column(String, ForeignKey('storages.uuid', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     document = relationship("Storage", foreign_keys=[document_uuid])
 
-    expediteur_uuid = Column(Integer, ForeignKey('senders.uuid', ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
-    sender = relationship("Sender", foreign_keys=[expediteur_uuid])
+    expediteur_uuid = Column(String, ForeignKey("users.uuid", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    sender = relationship("User", foreign_keys=[expediteur_uuid])
 
     # Gestion du destinataire polymorphe
     destinataire_type = Column(String, nullable=False)  # 'interne' ou 'externe'
@@ -62,4 +62,14 @@ class Courriers(Base):
 
     created_at = Column(DateTime, default=func.now())  # Account creation timestamp
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())  # Last update timestamp
+
+    # Relation polymorphe pour le destinataire
+    @property
+    def destinataire(self):
+        if self.destinataire_type == "interne":
+            return self.sender  # Cela suppose que le destinataire interne est un utilisateur
+        elif self.destinataire_type == "externe":
+            from app.main.models.externes import Externe  # Import conditionnel pour éviter les dépendances circulaires
+            return Externe.query.get(self.destinataire_uuid)  # Si c'est un externe, récupérer l'objet Externe
+        return None
    

@@ -4,6 +4,11 @@ from typing import List, Optional
 from app.main.schemas.user import AddedBy
 
 
+class CanauxReceptionCourierSlim(BaseModel):
+    uuid: str
+    name: str
+    model_config = ConfigDict(from_attributes=True)
+
 
 class CanauxReceptionCourierBase(BaseModel):
     name: str

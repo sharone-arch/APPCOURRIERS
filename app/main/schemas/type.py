@@ -1,13 +1,14 @@
 from datetime import datetime
 from pydantic import BaseModel,EmailStr,ConfigDict
 from typing import List, Optional
-
 from sqlalchemy import DateTime
-from app.main.models.users import UserRole
 from app.main.schemas.user import UserCreate
 
 
-
+class TypeCourriersSlim(BaseModel):
+    uuid:str
+    name:str
+    model_config = ConfigDict(from_attributes=True)
 
 class TypeCourriersBase(BaseModel):
     name:str
