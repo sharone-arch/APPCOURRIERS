@@ -8,3 +8,5 @@ from .nature_courriers import *
 from .formes_courriers import *
 from .type_courriers import *
 from .courriers import *
+from .departments import *
+from .externes import *

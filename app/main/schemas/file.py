@@ -71,6 +71,12 @@ class FileSlim1(BaseModel):
     format: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
+class FileSlim2(BaseModel):
+    file_name: str
+    url: str
+    format: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
 
 
 class FileList(DataList):

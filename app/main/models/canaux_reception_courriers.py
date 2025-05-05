@@ -11,7 +11,7 @@ from enum import Enum
 
 class CanauxReceptionCourier(Base):
 
-    __tablename__ = "canaux_receptions_couriers"
+    __tablename__ = "canaux_receptions"
 
     uuid = Column(String, primary_key=True,index=True, unique=True)
     name = Column(String, nullable=False)

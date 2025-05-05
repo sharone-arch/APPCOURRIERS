@@ -7,3 +7,6 @@ from .formes_courriers import *
 from .canaux_reception_courriers import *
 from .type_courriers import *
 from .courriers import *
+from .departements import *
+from .externes import *
+from .courriers import *
