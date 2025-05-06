@@ -16,7 +16,7 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
 
     @classmethod
     def get_by_phone_number(cls, db: Session, *, phone_number: str) -> Union[models.User, None]:
-        return db.query(models.User).filter(models.User.full_phone_number == phone_number).first()
+        return db.query(models.User).filter(models.User.phone_number == phone_number).first()
 
     @classmethod
     def get_by_email(cls, db: Session, *, email: str) -> Union[models.User, None]:
@@ -33,14 +33,14 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
         new_user = models.User(
             uuid=str(uuid.uuid4()),
             email = obj_in.email,
-            full_phone_number=f"{obj_in.country_code}{obj_in.phone_number}",
-            country_code=obj_in.country_code,
             phone_number=obj_in.phone_number,
             password_hash=get_password_hash(password),
             first_name=obj_in.first_name,
             last_name=obj_in.last_name,
             role=models.UserRole.ADMIN,
             login = obj_in.login,
+            avatar_uuid = obj_in.avatar_uuid
+
         )
         db.add(new_user)
         db.commit()
@@ -48,6 +48,29 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
         send_account_creation_email(email_to=obj_in.email, first_name=obj_in.first_name,last_name=obj_in.last_name,
                                     password=password)
         return new_user
+
+    @classmethod
+    def update_user(cls,db:Session,*,obj_in:schemas.UserUpdate):
+        db_obj = cls.get_by_uuid(db=db,uuid=obj_in.uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404, detail=__(key="user-not-found"))
+        db_obj.first_name = obj_in.first_name if obj_in.first_name else db_obj.first_name
+        db_obj.last_name = obj_in.last_name if obj_in.last_name else db_obj.last_name
+        db_obj.email = obj_in.email if obj_in.email else db_obj.email
+        db_obj.phone_number = obj_in.phone_number if db_obj.phone_number else db_obj.phone_number
+        db_obj.login = obj_in.login if obj_in.login else db_obj.login
+        db_obj.role = obj_in.role if obj_in.role else db_obj.role
+        db_obj.avatar_uuid = obj_in.avatar_uuid if obj_in.avatar_uuid else db_obj.avatar_uuid
+        db.flush()
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
+
+
+
+
+
     @classmethod
     def authenticate(cls, db: Session, *, email: str, password: str) -> Union[models.User, None]:
         db_obj: models.User = db.query(models.User).filter(models.User.email == email).first()
@@ -69,7 +92,7 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
     def get_all_users(cls, db: Session):
         return db.query(models.User).filter(
             models.User.is_deleted == False,
-            models.User.role.in_(["ADMIN", "EDIMESTRE"])
+            models.User.role.in_(["ADMIN", "EDIMESTRE","PROFESSEUR"])
         ).all()
     
     @classmethod
@@ -86,10 +109,10 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
         cls,
         db:Session,
         page:int = 1,
-        per_page:int = 10,
+        per_page:int = 25,
 
     ):
-        record_query = db.query(models.User).filter( models.User.is_deleted == False,models.User.role.in_(["ADMIN", "EDIMESTRE"]))
+        record_query = db.query(models.User).filter( models.User.is_deleted == False,models.User.role.in_(["ADMIN", "EDIMESTRE","PROFESSEUR"]))
 
         total = record_query.count()
         record_query = record_query.offset((page - 1) * per_page).limit(per_page)

@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel,EmailStr,ConfigDict
 from typing import Optional
 from app.main.models.users import UserRole
+from app.main.schemas.file import FileSlim2
  
 class AddedBy(BaseModel):
     uuid: str
@@ -12,39 +13,52 @@ class AddedBy(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class AddedBySlim(BaseModel):
+    first_name:str
+    last_name:str
+    role :str
+    
+    model_config = ConfigDict(from_attributes=True)
+
 class UserBase(BaseModel):
     email:EmailStr
-    country_code:str
     phone_number:str
     first_name:str
     last_name:str
     role:str
     login:Optional[str]=None
+    avatar_uuid:Optional[str]=None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserUpdate(BaseModel):
+    uuid:str
+    email:Optional[EmailStr]=None
+    phone_number:Optional[str]=None
+    first_name:Optional[str]=None
+    last_name:Optional[str]=None
+    role:Optional[str]=None
+    login:Optional[str]=None
+    avatar_uuid:Optional[str]=None
     model_config = ConfigDict(from_attributes=True)
 
 class UserResponseInfo(BaseModel):
+    uuid:str
     email:EmailStr
-    country_code:str
     phone_number:str
     first_name:str
     last_name:str
     role:str
     login:Optional[str]=None
-    full_phone_number:str = None
     is_new_user :Optional[bool]=None
+    avatar:Optional[FileSlim2]=None
     model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreate(UserBase):
     pass
 
-class UserUpdate(BaseModel):
-    uuid:str
-    email : Optional[EmailStr]=None
-    phone_number: Optional[str]=None
-    first_name: Optional[str]=None
-    last_name: Optional[str]=None
-    role:Optional[UserRole]=None
 
 class UserDelete(BaseModel):
     uuid:str
@@ -67,13 +81,13 @@ class UserAuthentication(BaseModel):
 class User(BaseModel):
     uuid:str
     email:EmailStr
-    country_code:str
     phone_number:str
     first_name:str
     last_name:str
     login:Optional[str]=None
     created_at: datetime
     updated_at: datetime
+    avatar:Optional[FileSlim2]=None
     status : str
     role :str
     model_config = ConfigDict(from_attributes=True)
@@ -90,11 +104,12 @@ class UserLogin(BaseModel):
 
 class UserProfile(BaseModel):
     email:EmailStr
-    country_code:str
     phone_number:str
     first_name:str
     last_name:str
     role:UserRole
+    login:Optional[str]=None
+    avatar:Optional[FileSlim2]=None
 
 class ResetPasswordOption2Step1(BaseModel):
     email: EmailStr

@@ -37,9 +37,9 @@ class CRUDExternes(CRUDBase[models.Externe,schemas.ExterneBase,schemas.ExterneCr
         db_obj = models.Externe(
             uuid = str(uuid.uuid4()),
             name = obj_in.name,
-            email = obj_in.name,
+            email = obj_in.email,
             phone_number = obj_in.phone_number,
-            address = obj_in.adress,
+            address = obj_in.address,
             type = obj_in.type,
             created_by = created_by
         )
@@ -58,7 +58,7 @@ class CRUDExternes(CRUDBase[models.Externe,schemas.ExterneBase,schemas.ExterneCr
         db_obj.name = obj_in.name if obj_in.name else db_obj.name
         db_obj.email = obj_in.email if obj_in.email else db_obj.email
         db_obj.phone_number = obj_in.phone_number if obj_in.phone_number else db_obj.phone_number
-        db_obj.adress = obj_in.adress if obj_in.adress else db_obj.adress
+        db_obj.address = obj_in.address if obj_in.address else db_obj.address
         db_obj.type = obj_in.type if obj_in.type else db_obj.type
         created_by = created_by
         db.commit()

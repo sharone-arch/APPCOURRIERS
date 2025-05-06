@@ -12,7 +12,7 @@ from app.main.core.dependencies import TokenRequired
 
 
 
-router = APIRouter(prefix="/type-courriers", tags=["type_courriers"])
+router = APIRouter(prefix="/type", tags=["type"])
 @router.post("/create", response_model=schemas.Msg)
 def create_Type_courrier(
     *,

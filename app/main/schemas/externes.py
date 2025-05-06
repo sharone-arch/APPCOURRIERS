@@ -8,7 +8,7 @@ class ExterneBase(BaseModel):
     name: str
     email: str
     phone_number: str
-    adress: str
+    address: str
     type: str  # client, fournisseur, partenaire
 
 class ExterneCreate(ExterneBase):
@@ -19,7 +19,7 @@ class ExterneUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     phone_number: Optional[str] = None
-    adress: Optional[str] = None
+    address: Optional[str] = None
     type: Optional[str] = None  # client, fournisseur, partenaire
 
 class UpdateStatus(BaseModel):
@@ -35,10 +35,11 @@ class Externe(BaseModel):
     name: str
     email: str
     phone_number: str
-    adress: str
+    address: str
     type: str  # client, fournisseur, partenaire
+    status:str
     created_at: datetime
-    updated_at:datetime
+    updated_at:Optional[datetime]=None
     creator:AddedBy
     model_config = ConfigDict(from_attributes=True)
 
@@ -56,6 +57,6 @@ class ExterneSlim(BaseModel):
     name: str
     email: str
     phone_number: str
-    adress: str
+    address: str
     type: str  # client, fournisseur, partenaire
     model_config = ConfigDict(from_attributes=True)

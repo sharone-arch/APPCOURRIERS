@@ -19,8 +19,6 @@ class UserRole(str, Enum):
     ADMIN = "ADMIN"
     EDIMESTRE = "EDIMESTRE"
     SUPER_ADMIN = "SUPER_ADMIN"
-    SENDER = "SENDER"
-
 
 class UserStatus(str, Enum):
     """
@@ -36,14 +34,35 @@ class UserStatus(str, Enum):
     BLOCKED = "BLOCKED"
 
 
+
 class User(Base):
+    """
+    Model representing a user in the system.
+
+    Attributes:
+        uuid (str): Unique identifier for the user.
+        email (str): User's email address (unique).
+        country_code (str): Country code associated with the phone number.
+        phone_number (str): User's phone number.
+        full_phone_number (str): Full phone number with country code.
+        first_name (str): User's first name.
+        last_name (str): User's last name.
+        password_hash (str): Hashed password of the user.
+        role (str): User role (ADMIN or SUPER_ADMIN).
+        otp (str): One-time password code (optional).
+        otp_expired_at (datetime): Expiration date of the OTP.
+        otp_password (str): One-time password for authentication (optional).
+        otp_password_expired_at (datetime): Expiration date of the OTP password.
+        status (str): User status (ACTIVED, UNACTIVED, etc.).
+        created_at (datetime): Timestamp of account creation.
+        updated_at (datetime): Timestamp of the last account update.
+    """
+
     __tablename__ = "users"
 
-    uuid = Column(String, primary_key=True, index=True)
+    uuid = Column(String, primary_key=True, index=True)  # Unique user identifier
     email = Column(String, unique=True, index=True, nullable=False)  # Unique email address
-    country_code = Column(String(5), nullable=False, default="", index=True)  # Country code
     phone_number = Column(String(20), nullable=False, default="", index=True)  # Phone number
-    full_phone_number = Column(String(25), nullable=False, default="", index=True)  # Full phone number with country code
     first_name = Column(String, nullable=False)  # First name
     last_name = Column(String, nullable=False)  # Last name
     password_hash = Column(String, nullable=False)  # Hashed password
@@ -56,6 +75,9 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())  # Account creation timestamp
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())  # Last update timestamp
     is_deleted = Column(Boolean, default=False)  # Soft delete flag
+
+    avatar_uuid: str = Column(String, ForeignKey('storages.uuid',ondelete="CASCADE",onupdate="CASCADE"), nullable=True)
+    avatar = relationship("Storage", foreign_keys=[avatar_uuid])
     
     # Nouveaux champs ajoutés
     login = Column(String, nullable=True)  # Nombre de connexions de l'utilisateur
@@ -63,10 +85,7 @@ class User(Base):
     first_login_date = Column(DateTime, nullable=True, default=None)  # Date de la première connexion
     last_login_date = Column(DateTime, nullable=True, default=None)  # Date de la dernière connexion
     connexion_counter = Column(Integer, nullable=True, default=0)  # Compteur de connexions
-
-    sent_arrivee = relationship("CourierStepArrivee", back_populates="sender")
-    sent_depart = relationship("CourierStepDepart", back_populates="sender")
-    def _repr_(self):
+    def __repr__(self):
         """
         String representation of the User object.
 

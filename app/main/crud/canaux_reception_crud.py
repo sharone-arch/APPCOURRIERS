@@ -22,11 +22,11 @@ class CRUDCanauxReceptionCourier(CRUDBase[models.CanauxReceptionCourier, schemas
         return db.query(models.CanauxReceptionCourier).filter(models.CanauxReceptionCourier.name == name,models.CanauxReceptionCourier.is_deleted==False).first()
 
     @classmethod
-    def create(cls, db: Session, *, obj_in: schemas.CanauxReceptionCourierCreate,created_by:str):
+    def create(cls, db: Session, *, obj_in: schemas.CanauxReceptionCourierCreate,added_by:str):
         new_canaux = models.CanauxReceptionCourier(
             uuid=str(uuid.uuid4()),
             name=obj_in.name,
-            created_by=created_by,  # Initialement non supprimé
+            added_by=added_by,  # Initialement non supprimé
         )
         db.add(new_canaux)
         db.commit()
@@ -34,12 +34,13 @@ class CRUDCanauxReceptionCourier(CRUDBase[models.CanauxReceptionCourier, schemas
         return new_canaux
 
     @classmethod
-    def update(cls, db: Session, *, uuid: str, obj_in: schemas.CanauxReceptionCourierUpdate) -> models.CanauxReceptionCourier:
+    def update(cls, db: Session, *, obj_in: schemas.CanauxReceptionCourierUpdate,added_by:str) -> models.CanauxReceptionCourier:
         canaux = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
         if not canaux:
             raise HTTPException(status_code=404, detail=__(key="canaux-not-found"))
        
         canaux.name = obj_in.name if obj_in.name else canaux.name
+        added_by = added_by
         db.flush()
         db.commit()
         db.refresh(canaux)

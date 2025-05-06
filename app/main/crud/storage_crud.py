@@ -3,13 +3,10 @@ import math
 from typing import Any, Dict, Optional, Union
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
-# from app.main.crud.base import CRUDBase
 from app.main.models.storage import Storage
 import uuid
 from app.main.schemas.file import FileAdd, File
 from app.main.utils.file import FileUtils
-# from app.main import crud
-# from app.main.utils.qrcode import CreateQrcode
 from app.main.models.storage import Storage
 from app.main.schemas.file import FileList, StorageCreate
 

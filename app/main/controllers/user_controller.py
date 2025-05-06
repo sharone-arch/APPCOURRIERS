@@ -18,9 +18,14 @@ def register(
     *,
     db: Session = Depends(get_db),
     obj_in:schemas.UserCreate,
-    # current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
-    exist_phone = crud.user.get_by_phone_number(db=db, phone_number=f"{obj_in.country_code}{obj_in.phone_number}")
+    if obj_in.avatar_uuid:
+        avatar = crud.storage_crud.get_file_by_uuid(db=db,file_uuid=obj_in.avatar_uuid)
+        if not avatar:
+            raise HTTPException(status_code=404, detail=__(key="avatar-not-found"))
+    
+    exist_phone = crud.user.get_by_phone_number(db=db, phone_number=obj_in.phone_number)
     if exist_phone:
         raise HTTPException(status_code=409, detail=__(key="phone_number-already-used"))
 
@@ -31,6 +36,23 @@ def register(
         db, obj_in=obj_in
     )
     return schemas.Msg(message=__(key="user-created-successfully"))
+
+
+@router.put("/update",response_model=schemas.Msg)
+def update(
+    *,
+    db: Session = Depends(get_db),
+    obj_in:schemas.UserUpdate,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+):
+    if obj_in.avatar_uuid:
+        avatar = crud.storage_crud.get_file_by_uuid(db=db,file_uuid=obj_in.avatar_uuid)
+        if not avatar:
+            raise HTTPException(status_code=404, detail=__(key="avatar-not-found"))
+    crud.user.update_user(
+        db, obj_in=obj_in
+    )
+    return schemas.Msg(message=__(key="user-updated-successfully"))
 
 @router.put("/update-status",response_model=schemas.Msg)
 def update_status(
@@ -70,7 +92,7 @@ def get(
     *,
     db: Session = Depends(get_db),
     page: int = 1,
-    per_page: int = 30,
+    per_page: int = 25,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     """
@@ -82,3 +104,12 @@ def get(
         page, 
         per_page, 
     )
+
+@router.get("/get_by_uuid",response_model=schemas.UserResponseInfo)
+def get_user_by_uuid(
+    *,
+    db: Session = Depends(get_db),
+    uuid:str,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+):
+    return crud.user.get_by_uuid(db=db,uuid=uuid)

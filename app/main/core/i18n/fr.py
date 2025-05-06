@@ -1,4 +1,22 @@
 translation = {
+     "phone_number-already-used": "Le numéro de téléphone est déjà utilisé",
+    "user-created-successfully": "Utilisateur créé avec succès",
+    "user-not-found": "Utilisateur non trouvé",
+    "reset-password-started": "Réinitialisation du mot de passe commencée",
+    "otp-invalid": "Code OTP invalide",
+    "password-reset-successfully": "Mot de passe réinitialisé avec succès",
+    "auth-login-failed": "Email ou mot de passe incorrect",
+    "user-not-activated": "Utilisateur non activé",
+    "user-not-activated" : "Votre compte est Inactif",
+    "account-not-found"  : "Votre compte est Introuvable",
+    "otp-expired": "Code OTP expiré",
+    "user-account-activated-successfully": "Compte utilisateur activé avec succès",
+    "user-account-deactivated-successfully": "Compte utilisateur désactivé avec succès",
+    "user-account-blocked-successfully": "Compte utilisateur bloqué avec succès",
+    "user-account-deleted-successfully": "Compte utilisateur supprimé avec succès",
+    "user-account-deleted-successfully" : "Compte utilisateur modifié avec succès",
+    "otp-valid": "Code OTP valide",
+    "account-created-successfully": "Compte créé avec succès",
     "address-not-found" : "Adresse introuvable",
     "this-email-is-already-exist" : "L'email est deja utilisée",
     "this-phone-number-is-already-exist"  : "Le numéro de téléphone est deja utilisé",
@@ -6,6 +24,11 @@ translation = {
     "courrier-not-found":"courriers introuvable",
     "forme-courrier-not-found":"forme de courrier introuvable",
     "nature-courrier-not-found":"nature courrier introuvable",
-    }
+    "externe-not-found" :"Destinataire Introuvable",
+    "receiver-created-successfully" : "Destinataire crée avec succès",
+    "receiver-updated-successfully" : "Destinataire modifié avec succès",
+    "receiver-deleted-successfully" : "Destinataire supprimé avec succès",
+    "status-updated-successfully" : "Statut mise à jour avec succès"
+}
 
     

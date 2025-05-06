@@ -10,7 +10,7 @@ from app.main.core.security import create_access_token, get_password_hash
 from app.main.core.config import Config
 from app.main.core.dependencies import TokenRequired
 
-router = APIRouter(prefix="/formes-courriers", tags=["formes_courriers"])
+router = APIRouter(prefix="/formes", tags=["formes"])
 @router.post("/create", response_model=schemas.Msg)
 def create_forme_courrier(
     *,

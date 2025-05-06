@@ -9,9 +9,9 @@ from app.main.models.db.base_class import Base
 from enum import Enum
 
 class ExterneType(str, Enum):
-    CLIENT = "client"
-    FOURNISSEUR = "fournisseur"
-    PARTENAIRE = "partenaire"
+    CLIENT = "Client"
+    FOURNISSEUR = "Fournisseur"
+    PARTENAIRE = "Partenaire"
 
 class ExterneStatus(str, Enum):
     ACTIVE = "active"
@@ -26,11 +26,11 @@ class Externe(Base):  # client, fournisseur ou partenaire
     name = Column(String, nullable=False)
     email = Column(String, nullable=True)
     phone_number  = Column(String, nullable=True)
-    adress = Column(String, nullable=True)
+    address = Column(String, nullable=True)
     type = Column(String,default=ExterneType.CLIENT,nullable=False)  # client, fournisseur, partenaire
     created_by = Column(String, ForeignKey('users.uuid',ondelete="CASCADE",onupdate="CASCADE"), nullable=True)
     creator = relationship("User", foreign_keys=[created_by])
-    status = Column(Boolean, default=ExterneStatus.ACTIVE)  # pour gérer l'activation/désactivation
+    status = Column(String, default=ExterneStatus.ACTIVE)  # pour gérer l'activation/désactivation
 
     is_deleted = Column(Boolean, default=False)  # pour gérer la suppression logique
     created_at = Column(DateTime(timezone=True), server_default=func.now())

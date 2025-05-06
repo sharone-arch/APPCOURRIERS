@@ -11,7 +11,7 @@ from app.main.core.config import Config
 from app.main.core.dependencies import TokenRequired
 
 
-router = APIRouter(prefix="/nature-courriers", tags=["nature_courriers"])
+router = APIRouter(prefix="/nature", tags=["nature"])
 @router.post("/create", response_model=schemas.Msg)
 def create_Nature_courrier(
     *,

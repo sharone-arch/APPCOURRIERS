@@ -10,7 +10,7 @@ from app.main.models.db.base_class import Base
 class BlacklistToken(Base):
     __tablename__ = 'blacklist_tokens'
 
-    uuid = Column(Integer, primary_key=True, unique=True)
+    uuid = Column(String, primary_key=True, unique=True)
     token = Column(String(500), unique=False, nullable=False)
 
     date_added: datetime = Column(DateTime, nullable=False, default=datetime.now())

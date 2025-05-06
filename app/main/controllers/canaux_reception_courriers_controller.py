@@ -10,7 +10,7 @@ from app.main.core.security import create_access_token, get_password_hash
 from app.main.core.config import Config
 from app.main.core.dependencies import TokenRequired
 
-router = APIRouter(prefix="/canaux-reception-courrier", tags=["canaux_reception_courrier"])
+router = APIRouter(prefix="/canaux-reception", tags=["canaux_reception"])
 
 @router.post("/create", response_model=schemas.Msg)
 def create_courrier_channel(
@@ -23,7 +23,7 @@ def create_courrier_channel(
     if exist_name:
         raise HTTPException(status_code=409, detail=__(key="courrier-channel-already-exists"))
 
-    crud.canaux.create(db, obj_in=obj_in, created_by=current_user.uuid)
+    crud.canaux.create(db, obj_in=obj_in, added_by=current_user.uuid)
     return schemas.Msg(message=__(key="courrier-channel-created-successfully"))
 
 @router.get("/get_all", response_model=List[schemas.CanauxReceptionCourierResponse]) # type: ignore
@@ -44,8 +44,8 @@ def update_canaux(
     obj_in:schemas.CanauxReceptionCourierUpdate,
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
-    added_by_uuid = current_user.uuid
-    return crud.canaux(db=db,obj_in=obj_in,added_by_uuid=added_by_uuid)
+    
+    return crud.canaux.update(db=db,obj_in=obj_in,added_by=current_user.uuid)
 
 
 @router.put("/soft-delete", response_model=schemas.Msg)
