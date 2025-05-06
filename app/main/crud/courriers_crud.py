@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.main.crud.base import CRUDBase
 from app.main import models,schemas,crud
 from app.main.core.mail import notify_couriers_interne,notify_couriers_externe
-class CRUDCourriers(CRUDBase[models.Courriers, schemas.CourierExterne, schemas.CourierExterneSlim]):
+class CRUDCourriers(CRUDBase[models.CourierExterne, schemas.CourierExterne, schemas.CourierExterneSlim]):
 
     @classmethod
     def get_couriers_interne_by_uuid(cls, db: Session, *, uuid: str) : 

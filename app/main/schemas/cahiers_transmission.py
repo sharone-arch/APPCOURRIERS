@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional, Union
 
-from app.main.schemas.courriers import CourrierResponseSlim
+# from app.main.schemas.courriers import CourrierResponseSlim
 from app.main.schemas.externes import ExterneInDB
 from app.main.schemas.user import AddedBy
 
@@ -17,7 +17,7 @@ class CahierTransmissionCreate(CahierTransmissionBase):
 
 class CahierTransmission(BaseModel):
     uuid : str
-    courrier:CourrierResponseSlim
+    # courrier:CourrierResponseSlim
     remarques: Optional[str] = None
     date_transmission:datetime
     transmis_par:Optional[AddedBy]
