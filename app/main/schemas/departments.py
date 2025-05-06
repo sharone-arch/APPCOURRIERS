@@ -58,6 +58,14 @@ class Department(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class DepartmentSlim(BaseModel):
+    uuid:str
+    name : Optional[str]=None
+    description:Optional[str]=None
+    email : Optional[str]=None
+    model_config = ConfigDict(from_attributes=True)
+
+
 class DepartmentDelete(BaseModel):
     uuid:str
 

@@ -32,4 +32,3 @@ class Sender(Base):
     is_deleted = Column(Boolean,default=False)
     created_at = Column(DateTime, default=func.now())  # Account creation timestamp
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())  # Last update timestamp
-   

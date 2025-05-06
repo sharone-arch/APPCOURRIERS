@@ -11,3 +11,4 @@ from .courriers import *
 from .departments import *
 from .externes import *
 from .courriers import *
+from .cahiers_transmission import *

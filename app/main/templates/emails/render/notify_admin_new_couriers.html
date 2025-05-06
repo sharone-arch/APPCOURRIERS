@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nouveau courrier</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f7;
+      color: #333;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #1F4283;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #f0f2f5;
+      border-left: 5px solid #1F4283;
+      border-radius: 5px;
+    }
+
+    strong {
+      color: #1F4283;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Bonjour {{ name }},</h2>
+    <p>Un nouveau courrier a été enregistré dans le système <strong>{{ project_name }}</strong>.</p>
+
+    <ul>
+      <li><strong>Titre :</strong> {{ titre }}</li>
+        <li><strong>Type :</strong> {{ type }}</li>
+        <li><strong>Nature :</strong> {{ nature }}</li>
+      <li><strong>Expéditeur :</strong> {{ sender }}</li>
+      <li><strong>Destinataire :</strong> {{ receiver }}</li>
+      <li><strong>Contenu :</strong> {{ contenu }}</li>
+    </ul>
+
+    <p>Merci de vous connecter pour le consulter.</p>
+
+    <div class="footer">
+      &copy; {{ project_name }} – Tous droits réservés.
+    </div>
+  </div>
+</body>
+</html>
