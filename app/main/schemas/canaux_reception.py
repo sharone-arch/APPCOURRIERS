@@ -10,31 +10,31 @@ class CanauxReceptionCourierSlim(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CanauxReceptionCourierBase(BaseModel):
+class CanauxReceptionBase(BaseModel):
     name: str
     model_config = ConfigDict(from_attributes=True)
 
-class CanauxReceptionCourierCreate(CanauxReceptionCourierBase):
+class CanauxReceptionCreate(CanauxReceptionBase):
     pass
 
-class CanauxReceptionCourierUpdate(BaseModel):
+class CanauxReceptionUpdate(BaseModel):
     uuid: str
     name: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
-class CanauxReceptionCourierResponse(BaseModel):
+class CanauxReceptionResponse(BaseModel):
     uuid: str
     name: str
-    creator : Optional[AddedBy] = None
     created_at: datetime
     updated_at: datetime
+    creator : Optional[AddedBy] = None
     model_config = ConfigDict(from_attributes=True)
 
 
-class CanauxReceptionCourierDelete(BaseModel):
+class CanauxReceptionDelete(BaseModel):
     uuid: str
 
-class CanauxReceptionCourierDetail(CanauxReceptionCourierResponse):
+class CanauxReceptionCourierDetail(CanauxReceptionResponse):
     creator: Optional[AddedBy] = None
 
 class CanauxReceptionCourierList(BaseModel):
@@ -42,5 +42,5 @@ class CanauxReceptionCourierList(BaseModel):
     pages: int
     per_page: int
     current_page: int
-    data: List[CanauxReceptionCourierResponse]
+    data: List[CanauxReceptionResponse]
     model_config = ConfigDict(from_attributes=True)

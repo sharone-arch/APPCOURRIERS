@@ -20,8 +20,8 @@ def create_Type_courrier(
     obj_in: schemas.TypeCourriersCreate,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    exist_uuid = crud.Type.get_by_uuid(db=db, name=obj_in.uuid)
-    if exist_uuid:
+    exist_name = crud.Type.get_by_name(db=db, name=obj_in.name)
+    if exist_name:
         raise HTTPException(status_code=409, detail=__(key="Type-courrier-already-exists"))
 
     crud.Type.create(db, obj_in=obj_in, created_by=current_user.uuid)
@@ -29,15 +29,16 @@ def create_Type_courrier(
 
 
 
-@router.put("/update",response_model=schemas.TypeCourriersResponse)
-def update_Nature(
+@router.put("/update/{uuid}",response_model=schemas.TypeCourriersResponse)
+def update_Type(
     *,
     db: Session = Depends(get_db),
     obj_in:schemas. TypeCourriersUpdate,
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     added_by_uuid = current_user.uuid
-    return crud.Type(db=db,obj_in=obj_in,added_by_uuid=added_by_uuid)
+    return crud.Type.update(db=db, obj_in=obj_in, added_by_uuid=added_by_uuid)
+
 
 
 

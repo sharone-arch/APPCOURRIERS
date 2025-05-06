@@ -19,12 +19,12 @@ def create_Nature_courrier(
     obj_in: schemas.NatureCourriersCreate,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    exist_uuid = crud.Nature.get_by_uuid(db=db, name=obj_in.uuid)
-    if exist_uuid:
-        raise HTTPException(status_code=409, detail=__(key="Nature-courrier-already-exists"))
+    exist_name = crud.Nature.get_by_name(db=db, name=obj_in.name)
+    if exist_name:
+        raise HTTPException(status_code=409, detail=__(key="nature-already-exists"))
 
     crud.Nature.create(db, obj_in=obj_in, created_by=current_user.uuid)
-    return schemas.Msg(message=__(key="Nature-courrier-created-successfully"))
+    return schemas.Msg(message=__(key="naturecreated-successfully"))
 
 
 
@@ -35,8 +35,7 @@ def update_Nature(
     obj_in:schemas.NatureCourriersUpdate,
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
-    added_by_uuid = current_user.uuid
-    return crud.Nature(db=db,obj_in=obj_in,added_by_uuid=added_by_uuid)
+    return crud.Nature.update(db=db,obj_in=obj_in,created_by=current_user.uuid)
 
 
 
@@ -48,7 +47,7 @@ def soft_delete_Nature(
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
     crud.Nature.soft_delete(db=db, uuid=obj_in.uuid)
-    return schemas.Msg(message=__(key="Nature-courrier-deleted-successfully"))
+    return schemas.Msg(message=__(key="nature-deleted-successfully"))
 
 
 @router.delete("/delete", response_model=schemas.Msg)
@@ -58,8 +57,8 @@ def delete_Nature(
     obj_in: schemas.NatureCourriersDelete,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
-    crud.Forme.delete(db=db, uuid=obj_in.uuid)
-    return schemas.Msg(message=__(key="Nature-courrier-deleted-successfully"))
+    crud.Nature.delete(db=db, uuid=obj_in.uuid)
+    return schemas.Msg(message=__(key="nature-deleted-successfully"))
 
 
 @router.get("/get_all", response_model=List[schemas.NatureCourriersResponse]) # type: ignore

@@ -31,7 +31,7 @@ translation = {
     "receiver-updated-successfully" : "Receiver updated successfully",
     "receiver-deleted-successfully" : "Receiver deleted successfully",
     "status-updated-successfully" : "Status updated successfully "
-    
+
 } 
 
    

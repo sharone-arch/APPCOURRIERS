@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from sqlalchemy import DateTime
 from app.main.models.users import UserRole
-from app.main.schemas.user import UserCreate
+from app.main.schemas.user import AddedBy, UserCreate
 
 
 
@@ -27,7 +27,7 @@ class FormesCourriersDelete(BaseModel):
 class FormesCourriersResponse(BaseModel):
     uuid:str
     name:str
-    created_by:UserCreate
+    creator : Optional[AddedBy] = None
     created_at: datetime
     updated_at:datetime
     model_config = ConfigDict(from_attributes=True)

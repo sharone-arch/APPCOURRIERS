@@ -12,7 +12,7 @@ from app.main.crud.base import CRUDBase
 from app.main import models,schemas
 from app.main.core.mail import send_account_creation_email
 
-class CRUDCanauxReceptionCourier(CRUDBase[models.CanauxReceptionCourier, schemas.CanauxReceptionCourierCreate, schemas.CanauxReceptionCourierUpdate]):
+class CRUDCanauxReceptionCourier(CRUDBase[models.CanauxReceptionCourier, schemas.CanauxReceptionCreate, schemas.CanauxReceptionUpdate]):
 
     @classmethod
     def get_by_uuid(cls, db: Session, *, uuid: str):
@@ -22,7 +22,7 @@ class CRUDCanauxReceptionCourier(CRUDBase[models.CanauxReceptionCourier, schemas
         return db.query(models.CanauxReceptionCourier).filter(models.CanauxReceptionCourier.name == name,models.CanauxReceptionCourier.is_deleted==False).first()
 
     @classmethod
-    def create(cls, db: Session, *, obj_in: schemas.CanauxReceptionCourierCreate,added_by:str):
+    def create(cls, db: Session, *, obj_in: schemas.CanauxReceptionCreate,added_by:str):
         new_canaux = models.CanauxReceptionCourier(
             uuid=str(uuid.uuid4()),
             name=obj_in.name,
@@ -34,7 +34,7 @@ class CRUDCanauxReceptionCourier(CRUDBase[models.CanauxReceptionCourier, schemas
         return new_canaux
 
     @classmethod
-    def update(cls, db: Session, *, obj_in: schemas.CanauxReceptionCourierUpdate,added_by:str) -> models.CanauxReceptionCourier:
+    def update(cls, db: Session, *,  obj_in: schemas.CanauxReceptionUpdate,added_by:str):
         canaux = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
         if not canaux:
             raise HTTPException(status_code=404, detail=__(key="canaux-not-found"))

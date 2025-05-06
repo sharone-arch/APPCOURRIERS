@@ -11,4 +11,3 @@ from .departements import *
 from .externes import *
 from .courriers import *
 from .senders import *
-# from .cahiers_transmission import *

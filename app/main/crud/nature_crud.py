@@ -17,6 +17,7 @@ class CRUDNatureCourriers(CRUDBase[models.NatureCourriers, schemas.NatureCourrie
     @classmethod
     def get_by_uuid(cls, db: Session, *, uuid: str):
         return db.query(models. NatureCourriers).filter(models.NatureCourriers.uuid == uuid,models. NatureCourriers.is_deleted==False).first()
+    
     @classmethod
     def get_by_name(cls, db: Session, *, name: str):
         return db.query(models. NatureCourriers).filter(models.NatureCourriers.name == name,models. NatureCourriers.is_deleted==False).first()
@@ -35,12 +36,12 @@ class CRUDNatureCourriers(CRUDBase[models.NatureCourriers, schemas.NatureCourrie
     
 
     @classmethod
-    def update(cls, db: Session, *, uuid: str, obj_in: schemas.NatureCourriersUpdate) -> models.NatureCourriers:
+    def update(cls, db: Session, *, obj_in: schemas.NatureCourriersUpdate,created_by:str) -> models.NatureCourriers:
         Nature = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
         if not Nature:
             raise HTTPException(status_code=404, detail=__(key="Nature-not-found"))
-        
-        db.flush()
+        Nature.name = obj_in.name if obj_in.name else Nature.name
+        created_by = created_by
         db.commit()
         db.refresh(Nature)
         return Nature
