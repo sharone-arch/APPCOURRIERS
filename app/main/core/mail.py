@@ -56,61 +56,21 @@ def send_start_reset_password(email_to: str,name:str ,code:str) -> None:
 
 
 
-# def notify_admin_new_couriers(email_to: str,name: str,titre: str,contenu: str,sender: str,receiver: str,type:str,nature:str) -> None:
-#     try:
-#         # Chargement du template HTML
-#         template_path = Path(Config.EMAIL_TEMPLATES_DIR) / "notify_admin_new_couriers.html"
-#         template_content = template_path.read_text(encoding="utf-8")
-#         template = Template(template_content)
-
-#         # Rendu du contenu HTML avec les variables
-#         html_content = template.render(name=name,project_name=Config.PROJECT_NAME,titre=titre,contenu=contenu,sender=sender,receiver=receiver,nature=nature,type=type)
-#         # Création de l’email
-#         msg = MIMEMultipart()
-#         msg["From"] = Config.EMAILS_FROM_CLOUDINARY
-#         msg["To"] = email_to
-#         msg["Subject"] = "COURIERLINK | Nouveau courrier reçu"
-
-#         msg.attach(MIMEText(html_content, "html"))
-
-#         # Envoi via Mailtrap (SMTP)
-#         with smtplib.SMTP(Config.MAILTRAP_HOST, Config.MAILTRAP_PORT) as server:
-#             server.starttls()
-#             server.login(Config.MAILTRAP_USERNAME, Config.MAILTRAP_PASSWORD)
-#             server.send_message(msg)
-
-#         logging.info(f"Email de notification envoyé à {email_to}")
-
-def notify_couriers_interne(
-    email_to: str,
-    name: str,
-    titre: str,
-    contenu: str,
-    sender: str,
-    receiver: str,
-    type: str,
-    nature: str
-) -> None:
+def notify_admin_new_couriers(email_to: str,name: str,subject: str,content: str,sender: str) -> None:
     try:
-        template_path = Path(Config.EMAIL_TEMPLATES_DIR) / "notify_couriers_interne.html"
+        # Chargement du template HTML
+        template_path = Path(Config.EMAIL_TEMPLATES_DIR) / "notify_admin_new_couriers.html"
         template_content = template_path.read_text(encoding="utf-8")
         template = Template(template_content)
 
-        html_content = template.render(
-            name=name,
-            project_name=Config.PROJECT_NAME,
-            titre=titre,
-            contenu=contenu,
-            sender=sender,
-            receiver=receiver,
-            nature=nature,
-            type=type
-        )
-
+        # Rendu du contenu HTML avec les variables
+        html_content = template.render(name=name,project_name=Config.PROJECT_NAME,subject=subject,content=content,sender=sender)
+        # Création de l’email
         msg = MIMEMultipart()
         msg["From"] = Config.EMAILS_FROM_CLOUDINARY
         msg["To"] = email_to
-        msg["Subject"] = "COURIERLINK | Nouveau courrier INTERNE reçu"
+        msg["Subject"] = "COURIERLINK | Nouveau courrier reçu"
+
         msg.attach(MIMEText(html_content, "html"))
 
         with smtplib.SMTP(Config.MAILTRAP_HOST, Config.MAILTRAP_PORT) as server:
@@ -123,47 +83,47 @@ def notify_couriers_interne(
     except Exception as e:
         logging.error(f"[INTERNE] Erreur envoi mail : {e}")
 
-def notify_couriers_externe(
+
+def notify_receiver_new_mail(
     email_to: str,
     name: str,
-    titre: str,
-    contenu: str,
-    sender: str,
-    receiver: str,
-    type: str,
-    nature: str
+    subject: str,
+    content: str,
+    sender: str
 ) -> None:
     try:
-        template_path = Path(Config.EMAIL_TEMPLATES_DIR) / "notify_couriers_externe.html"
+        # Chargement du template HTML
+        template_path = Path(Config.EMAIL_TEMPLATES_DIR) / "notify_receiver_new_mail.html"
         template_content = template_path.read_text(encoding="utf-8")
         template = Template(template_content)
 
+        # Rendu du contenu HTML avec les variables
         html_content = template.render(
             name=name,
             project_name=Config.PROJECT_NAME,
-            titre=titre,
-            contenu=contenu,
-            sender=sender,
-            receiver=receiver,
-            nature=nature,
-            type=type
+            subject=subject,
+            content=content,
+            sender=sender
         )
 
+        # Construction de l’email
         msg = MIMEMultipart()
         msg["From"] = Config.EMAILS_FROM_CLOUDINARY
         msg["To"] = email_to
-        msg["Subject"] = "COURIERLINK | Nouveau courrier EXTERNE reçu"
+        msg["Subject"] = "COURIERLINK | Vous avez reçu un nouveau courrier"
+
         msg.attach(MIMEText(html_content, "html"))
 
+        # Envoi de l’email via Mailtrap
         with smtplib.SMTP(Config.MAILTRAP_HOST, Config.MAILTRAP_PORT) as server:
             server.starttls()
             server.login(Config.MAILTRAP_USERNAME, Config.MAILTRAP_PASSWORD)
             server.send_message(msg)
 
-        logging.info(f"[EXTERNE] Email envoyé à {email_to}")
+        logging.info(f"[RECEIVER] Email envoyé à {email_to}")
 
     except Exception as e:
-        logging.error(f"[EXTERNE] Erreur envoi mail : {e}")
+        logging.error(f"[RECEIVER] Erreur envoi mail : {e}")
 
 
 def send_reset_password_option2_email(email_to: str, name: str,  otp: str):

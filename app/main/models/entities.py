@@ -8,16 +8,15 @@ from sqlalchemy import event
 from app.main.models.db.base_class import Base
 from enum import Enum
 
-class ExterneType(str, Enum):
-    CLIENT = "Client"
-    FOURNISSEUR = "Fournisseur"
-    PARTENAIRE = "Partenaire"
 
 class ExterneStatus(str, Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     BLOCKED = "locked"
 
+class TypeExterne(str,Enum):
+    INTERNE = "INTERNE"
+    EXTERNE = "EXTERNE"
 
 class Externe(Base):  # client, fournisseur ou partenaire
     __tablename__ = "externes"
@@ -27,7 +26,7 @@ class Externe(Base):  # client, fournisseur ou partenaire
     email = Column(String, nullable=True)
     phone_number  = Column(String, nullable=True)
     address = Column(String, nullable=True)
-    type = Column(String,default=ExterneType.CLIENT,nullable=False)  # client, fournisseur, partenaire
+    type = Column(String,nullable=False,default=TypeExterne.INTERNE)  # client, fournisseur, partenaire
     created_by = Column(String, ForeignKey('users.uuid',ondelete="CASCADE",onupdate="CASCADE"), nullable=True)
     creator = relationship("User", foreign_keys=[created_by])
     status = Column(String, default=ExterneStatus.ACTIVE)  # pour gérer l'activation/désactivation

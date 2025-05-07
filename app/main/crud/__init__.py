@@ -7,3 +7,5 @@ from .formes_crud import *
 from .nature_crud import *
 from .externes_crud import *
 from .departments_crud import *
+from .type_crud import *
+from .senders_crud import *

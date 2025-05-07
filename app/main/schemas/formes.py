@@ -32,6 +32,13 @@ class FormesCourriersResponse(BaseModel):
     updated_at:datetime
     model_config = ConfigDict(from_attributes=True)
 
+
+class FormesSlim(BaseModel):
+    uuid:str
+    name:str
+    model_config = ConfigDict(from_attributes=True)
+
+
 class FormesCourriersResponseList(BaseModel):
     total:int
     pages:int

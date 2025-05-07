@@ -16,7 +16,7 @@ class CRUDExternes(CRUDBase[models.Externe,schemas.ExterneBase,schemas.ExterneCr
 
     @classmethod
     def get_by_uuid(cls,db:Session,*,uuid:str):
-        return db.query(models.Externe).filter(models.Externe.uuid==uuid,models.Externe.is_deleted==False).first()
+        return db.query(models.Externe).filter(models.Externe.uuid==uuid).first()
     
     @classmethod
     def get_by_name(cls,db:Session,*,name:str):
@@ -82,11 +82,11 @@ class CRUDExternes(CRUDBase[models.Externe,schemas.ExterneBase,schemas.ExterneCr
         db.commit()
 
     @classmethod
-    def update_status(cls,db:Session,*,uuid:str,status:bool):
+    def update_status(cls,db:Session,*,uuid:str,status:str):
         db_obj = cls.get_by_uuid(db=db,uuid=uuid)
         if not db_obj:
             raise HTTPException(status_code=404,detail=__(key="externe-not-found"))
-        db_obj.is_deleted = status
+        db_obj.status = status
         db.commit()
         db.refresh(db_obj)
         return db_obj
@@ -96,12 +96,12 @@ class CRUDExternes(CRUDBase[models.Externe,schemas.ExterneBase,schemas.ExterneCr
         cls,
         db:Session,
         page:int = 1,
-        per_page:int = 30,
+        per_page:int = 25,
         order:Optional[str] = None,
         status:Optional[str] = None,
         keyword:Optional[str]= None
     ):
-        record_query = db.query(models.Externe).filter(models.Externe.status.not_in([models.ExterneStatus.BLOCKED]))
+        record_query = db.query(models.Externe).filter(models.Externe.status.not_in([models.ExterneStatus.BLOCKED]),models.Externe.is_deleted==False)
         if keyword:
             record_query = record_query.filter(
                 or_(

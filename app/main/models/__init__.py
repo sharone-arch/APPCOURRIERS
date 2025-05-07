@@ -8,6 +8,6 @@ from .canaux_reception import *
 from .type import *
 from .courriers import *
 from .departements import *
-from .externes import *
+from .entities import *
 from .courriers import *
 from .senders import *

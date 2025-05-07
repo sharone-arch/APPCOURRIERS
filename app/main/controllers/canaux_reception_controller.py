@@ -48,7 +48,7 @@ def update_channel(
     obj_in:schemas.CanauxReceptionUpdate,
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
-    crud.canaux.update(db=db,obj_in=obj_in,created_by=current_user.uuid)
+    crud.canaux.update(db=db,obj_in=obj_in,added_by=current_user.uuid)
     return {"message" :__(key="canal-updated-successfully")}
 
 
@@ -79,7 +79,7 @@ def get_all_canaux_chanel(
     *,
     db: Session = Depends(get_db),
     page: int =  1,
-    per_page: int = 30,
+    per_page: int = 10,
     order:str= Query(None,enum=["ASC","DESC"]),
     order_field: Optional[str] = None,
     keyword: Optional[str] = None,

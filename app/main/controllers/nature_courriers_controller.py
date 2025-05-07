@@ -61,13 +61,12 @@ def delete_Nature(
     return schemas.Msg(message=__(key="nature-deleted-successfully"))
 
 
-@router.get("/get_all", response_model=List[schemas.NatureCourriersResponse]) # type: ignore
+@router.get("/get_all", response_model=None) # type: ignore
 def get_all_Nature(
     db: Session = Depends(get_db),
     page: int =  1,
-    per_page: int = 30,
+    per_page: int = 10,
     order:str= Query(None,enum=["ASC","DESC"]),
-    order_field: Optional[str] = None,
     keyword: Optional[str] = None,
 ):
      return crud.Nature.get_many(
@@ -75,7 +74,6 @@ def get_all_Nature(
         page=page,
         per_page=per_page,
         order=order,
-        order_field=order_field,
         keyword=keyword,
     )
 

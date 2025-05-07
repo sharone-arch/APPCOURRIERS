@@ -11,3 +11,9 @@ test.user@example.com
 Mes Infos de connexion 
 admin@example.com
 &1uTkqV<
+
+
+{
+  "email": "chantal.mbarga@example.com",
+  "password": ">8iTrW*>"
+}

@@ -77,7 +77,7 @@ class CRUDCanauxReceptionCourier(CRUDBase[models.CanauxReceptionCourier, schemas
             *,
             db: Session,
             page: int = 1,
-            per_page: int = 30,
+            per_page: int = 10,
             order: Optional[str] = None,
             order_field: Optional[str] = None,
             keyword: Optional[str] = None

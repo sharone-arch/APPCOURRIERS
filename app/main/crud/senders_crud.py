@@ -37,21 +37,38 @@ class CRUDSender(CRUDBase[models. Sender, schemas.SenderCreate, schemas.SenderUp
     
     @classmethod
     def create(cls,db:Session,*,obj_in:schemas.SenderCreate,added_by:str)->models.Sender:
+        commond_uuid = str(uuid.uuid4())
         db_obj = models.Sender(
-            uuid = str(uuid.uuid4()),
+            uuid = commond_uuid,
             first_name = obj_in.first_name,
             last_name = obj_in.last_name,
             phone_number = obj_in.phone_number,
             email = obj_in.email,
             second_phone_number = obj_in.second_phone_number,
             address = obj_in.address,
-            avatar_uuid = obj_in.avatar_uuid if obj_in.avatar_uuid else None,
+            avatar_uuid = obj_in.avatar_uuid,
             added_by = added_by,
 
         )
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
+        password: str = generate_password(8, 8)
+        print(f"User password: {password}")
+        new_user = models.User(
+            uuid = commond_uuid, 
+            email = obj_in.email,
+            phone_number = obj_in.phone_number,
+            first_name = obj_in.first_name,
+            last_name = obj_in.last_name,
+            role = models.UserRole.SENDER,
+            password_hash=get_password_hash(password)
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        send_account_creation_email(email_to=obj_in.email, first_name=obj_in.first_name,last_name=obj_in.last_name,
+                                    password=password)
 
         return db_obj
     
@@ -78,9 +95,7 @@ class CRUDSender(CRUDBase[models. Sender, schemas.SenderCreate, schemas.SenderUp
 
     @classmethod
     def soft_delete(cls, db: Session, *, uuid: str):
-        print(f"SENDER {uuid}")
         sender = cls.get_by_uuid(db=db, uuid=uuid)
-        
         if not sender:
             raise HTTPException(status_code=404, detail=__(key="senders-deleted-successfully"))
         sender.is_deleted = True
@@ -89,7 +104,6 @@ class CRUDSender(CRUDBase[models. Sender, schemas.SenderCreate, schemas.SenderUp
 
     @classmethod
     def delete(cls, db: Session, *, uuid: str) -> None:
-        print(f"SENDER {uuid}")
         sender = cls.get_by_uuid(db=db, uuid=uuid)
         if not sender:
             raise HTTPException(status_code=404, detail=__(key="senders-deleted-successfully"))
@@ -102,31 +116,25 @@ class CRUDSender(CRUDBase[models. Sender, schemas.SenderCreate, schemas.SenderUp
     
     @classmethod
     def get_many(
-            cls,
-            *,
-            db: Session,
-            offset: int = 0,
-            limit: int = 10,
-            search: Optional[str] = None,
-            order_by: Optional[str] = None
-    ) -> List[models.Sender]:
-        query = db.query(models.Sender).filter(models.Sender.is_deleted == False)
-        if search:
-            query = query.filter(
-                or_(
-                    models.Sender.first_name.ilike(f"%{search}%"),
-                    models.Sender.last_name.ilike(f"%{search}%"),
-                    models.Sender.phone_number.ilike(f"%{search}%"),
-                    models.Sender.email.ilike(f"%{search}%"),
-                    models.Sender.second_phone_number.ilike(f"%{search}%"),
-                    models.Sender.address.ilike(f"%{search}%")
-                )
-            )
-        if order_by:
-            query = query.order_by(order_by)
-        else:
-            query = query.order_by(models.Sender.created_at.desc())
-        return query.offset(offset).limit(limit).all()
+        cls,
+        db:Session,
+        page:int = 1,
+        per_page:int = 25,
+
+    ):
+        record_query = db.query(models.Sender).filter( models.Sender.is_deleted == False)
+
+        total = record_query.count()
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)
+
+        return schemas.SenderResponseList(
+            total = total,
+            pages = math.ceil(total/per_page),
+            per_page = per_page,
+            current_page =page,
+            data =record_query
+        )
+    
     
 
 sender=CRUDSender(models.Sender)

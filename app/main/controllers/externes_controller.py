@@ -73,9 +73,10 @@ async def update_status_receiver(
 async def get_all_receiver(
     db: Session = Depends(get_db),
     page: int =  1,
-    per_page: int = 30,
+    per_page: int = 25,
     order:str= Query(None,enum=["ASC","DESC"]),
     keyword: Optional[str] = None,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
      return crud.externe.get_many(
         db=db,
@@ -84,3 +85,18 @@ async def get_all_receiver(
         order=order,
         keyword=keyword,
     )
+
+
+from fastapi import HTTPException
+
+@router.get("/get_by_uuid", response_model=schemas.ExterneSlim)
+async def get_data_by_uuid(
+    *,
+    db: Session = Depends(get_db),
+    uuid: str,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+):
+    data = crud.externe.get_by_uuid(db=db, uuid=uuid)
+    if not data:
+        raise HTTPException(status_code=404, detail="Externe non trouvé")
+    return data

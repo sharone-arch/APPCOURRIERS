@@ -73,21 +73,20 @@ def delete_sender(
     return schemas.Msg(message=__(key="senders-deleted-successfully"))
 
 
-@router.get("/get_all", response_model=List[schemas.SenderResponse])  # type: ignore
-def get_all_senders(
+@router.get("/get_many", response_model=None)
+def get(
     *,
     db: Session = Depends(get_db),
     page: int = 1,
-    per_page: int = 30,
-    order: str = Query(None, enum=["ASC", "DESC"]),
-    order_field: Optional[str] = None,
-    keyword: Optional[str] = None,
+    per_page: int = 25,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
+    """
+    get administrator with all data by passing filters
+    """
+    
     return crud.sender.get_many(
-        db=db,
-        page=page,
-        per_page=per_page,
-        order=order,
-        order_field=order_field,
-        keyword=keyword,
+        db, 
+        page, 
+        per_page, 
     )

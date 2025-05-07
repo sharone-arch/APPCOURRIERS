@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel,EmailStr,ConfigDict
 from typing import List, Optional
 from sqlalchemy import DateTime
-from app.main.schemas.user import UserCreate
+from app.main.schemas.user import AddedBy, UserCreate
 
 
 class TypeCourriersSlim(BaseModel):
@@ -27,7 +27,7 @@ class TypeCourriersDelete(BaseModel):
 class TypeCourriersResponse(BaseModel):
     uuid:str
     name:str
-    created_by:UserCreate
+    creator:AddedBy
     created_at: datetime
     updated_at:datetime
     model_config = ConfigDict(from_attributes=True)

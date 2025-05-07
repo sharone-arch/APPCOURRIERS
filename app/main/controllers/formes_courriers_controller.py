@@ -34,7 +34,6 @@ def update_Forme(
     obj_in:schemas.FormesCourriersUpdate,
     current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
-    added_by_uuid = current_user.uuid
     return crud.formes_couriers.update(db=db,obj_in=obj_in,added_by=current_user.uuid)
 
 
@@ -60,14 +59,15 @@ def delete_Forme(
     return schemas.Msg(message=__(key="forme-courrier-deleted-successfully"))
 
 
-@router.get("/get_all", response_model=List[schemas.FormesCourriersResponse]) # type: ignore
+@router.get("/get_all", response_model=None) # type: ignore
 def get_all_Formes(
     db: Session = Depends(get_db),
     page: int =  1,
-    per_page: int = 30,
+    per_page: int = 10,
     order:str= Query(None,enum=["ASC","DESC"]),
     order_field: Optional[str] = None,
     keyword: Optional[str] = None,
+    current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
      return crud.formes_couriers.get_many(
         db=db,

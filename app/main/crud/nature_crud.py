@@ -69,41 +69,39 @@ class CRUDNatureCourriers(CRUDBase[models.NatureCourriers, schemas.NatureCourrie
 
     @classmethod
     def get_many(
-            cls,
-            *,
-            db: Session,
-            page: int = 1,
-            per_page: int = 10,
-            search: Optional[str] = None,
-            sort_by: Optional[str] = None,
-            order: Optional[str] = None
-    ) -> schemas.NatureCourriersResponse:
-        query = db.query(models.NatureCourriers).filter(models.NatureCourriers.is_deleted == False)
+        cls,
+        db:Session,
+        page:int = 1,
+        per_page:int = 10,
+        order:Optional[str] = None,
+        keyword:Optional[str]= None
+    ):
+        record_query = db.query(models.NatureCourriers).filter(models.NatureCourriers.is_deleted == False)
         
-        if search:
-            query = query.filter(or_(
-                models.NatureCourriers.name.ilike(f"%{search}%"),
-                models.NatureCourriers.uuid.ilike(f"%{search}%")
-            ))
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    models.NatureCourriers.name.ilike('%' + str(keyword) + '%')
+
+                )
+            )
         
-        total = query.count()
-        pages = math.ceil(total / per_page)
+        if order and order.lower() == "asc":
+            record_query = record_query.order_by(models.NatureCourriers.date_added.asc())
         
-        if sort_by and order:
-            if order.lower() == "asc":
-                query = query.order_by(getattr(models.NatureCourriers, sort_by).asc())
-            else:
-                query = query.order_by(getattr(models.NatureCourriers, sort_by).desc())
-        
-        data = query.offset((page - 1) * per_page).limit(per_page).all()
+        elif order and order.lower() == "desc":
+            record_query = record_query.order_by(models.NatureCourriers.date_added.desc())
+        total = record_query.count()
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)
         
         return schemas.NatureCourriersResponseList(
-            total=total,
-            pages=pages,
-            per_page=per_page,
-            current_page=page,
-            data=data
+            total = total,
+            pages = math.ceil(total/per_page),
+            per_page = per_page,
+            current_page =page,
+            data =record_query
         )
+    
     
     
     

@@ -12,20 +12,39 @@ from app.main.core.dependencies import TokenRequired
 
 
 
-# router = APIRouter(prefix="/courriers", tags=["courriers"])
-# @router.post("/create", response_model=schemas.Msg)
-# def create_courrier_channel(
-#     *,
-#     db: Session = Depends(get_db),
-#     obj_in: schemas.CourriersBaseCreate,
-#     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
-# ):
-#     exist_uuid = crud.Courriers.get_by_uuid(db=db, name=obj_in.uuid)
-#     if exist_uuid:
-#         raise HTTPException(status_code=409, detail=__(key="courrier-channel-already-exists"))
+router = APIRouter(prefix="/mails", tags=["mails"])
+@router.post("/create", response_model=schemas.Msg)
+def create_mail(
+    *,
+    db: Session = Depends(get_db),
+    obj_in: schemas.MailCreate,
+    current_user: models.User = Depends(TokenRequired(roles=["SENDER"]))
+):
+    if obj_in.document_uuid:
+        documents = crud.storage_crud.get_file_by_uuid(db=db,file_uuid=obj_in.document_uuid)
+        if not documents:
+            raise HTTPException(status_code=404,detail=__(key="document-not-found"))
+    receiver = crud.externe.get_by_uuid(db=db,uuid=obj_in.uuid)
+    if not receiver:
+        raise HTTPException(status_code=404,detail=__(key="receiver-not-found"))
+    type = crud.type_couriers.get_by_uuid(db=db,uuid=obj_in.type_uuid)
+    if not type:
+        raise HTTPException(status_code=404,detail=__(key="type-mail-not-found"))
+    nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
+    if not nature:
+         raise HTTPException(status_code=404,detail=__(key="nature-mail-not-found"))
+    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
+    if not nature:
+         raise HTTPException(status_code=404,detail=__(key="forme-mail-not-found"))
+    canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
+    if not canal_reception:
+        raise HTTPException(status_code=404,detail=__(key="canal-mail-not-found"))
+    crud.courriers.create(db=db,obj_in=obj_in,sender_uuid=current_user.uuid)
+    return schemas.Msg(message=__(key="mail-send-successfully"))
 
-#     crud.Courriers.create(db, obj_in=obj_in, created_by=current_user.uuid)
-#     return schemas.Msg(message=__(key="courrier-channel-created-successfully"))
+
+
+
 
 
 

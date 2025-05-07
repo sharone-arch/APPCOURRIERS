@@ -34,16 +34,15 @@ class CRUDTypeCourriers(CRUDBase[models.TypeCourriers, schemas.TypeCourriersCrea
     
 
     @classmethod
-    def update(cls, db: Session, *, uuid: str, obj_in: schemas.TypeCourriersUpdate, added_by_uuid=None) -> models.TypeCourriers:
-    
-        Type = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
-        if not   Type:
-            raise HTTPException(status_code=404, detail=__(key="Type-not-found"))
-        
-        db.flush()
+    def update(cls, db: Session, *,  obj_in: schemas.TypeCourriersUpdate,created_by:str):
+        db_obj = cls.get_by_uuid(db=db,uuid=obj_in.uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404,detail=__(key="type-courrier-not-found"))
+        db_obj.name = obj_in.name if obj_in.name else db_obj.name
         db.commit()
-        db.refresh( Type)
-        return  Type
+        db.refresh(db_obj)
+        return db_obj
+
     
     @classmethod
     def soft_delete(cls, db: Session, *, uuid: str) -> None:
@@ -69,45 +68,42 @@ class CRUDTypeCourriers(CRUDBase[models.TypeCourriers, schemas.TypeCourriersCrea
 
     @classmethod
     def get_many(
-            cls,
-            *,
-            db: Session,
-            page: int = 1,
-            per_page: int = 10,
-            search: Optional[str] = None,
-            sort_by: Optional[str] = None,
-            order: Optional[str] = None
-    ) -> schemas.TypeCourriersResponse:
-        query = db.query(models.TypeCourriers).filter(models.TypeCourriers.is_deleted == False)
+        cls,
+        db:Session,
+        page:int = 1,
+        per_page:int = 10,
+        order:Optional[str] = None,
+        keyword:Optional[str]= None
+    ):
+        record_query = db.query(models.TypeCourriers).filter(models.TypeCourriers.is_deleted == False)
         
-        if search:
-            query = query.filter(or_(
-                models.TypeCourriers.name.ilike(f"%{search}%"),
-                models.TypeCourriers.uuid.ilike(f"%{search}%")
-            ))
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    models.TypeCourriers.name.ilike('%' + str(keyword) + '%')
+
+                )
+            )
         
-        total = query.count()
-        pages = math.ceil(total / per_page)
+        if order and order.lower() == "asc":
+            record_query = record_query.order_by(models.TypeCourriers.date_added.asc())
         
-        if sort_by and order:
-            if order.lower() == "asc":
-                query = query.order_by(getattr(models.TypeCourriers, sort_by).asc())
-            else:
-                query = query.order_by(getattr(models.TypeCourriers, sort_by).desc())
+        elif order and order.lower() == "desc":
+            record_query = record_query.order_by(models.TypeCourriers.date_added.desc())
+        total = record_query.count()
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)
         
-        data = query.offset((page - 1) * per_page).limit(per_page).all()
-        
-        return schemas.TypeCourriersResponse(
-            total=total,
-            pages=pages,
-            per_page=per_page,
-            current_page=page,
-            data=data
+        return schemas.TypeCourriersResponseList(
+            total = total,
+            pages = math.ceil(total/per_page),
+            per_page = per_page,
+            current_page =page,
+            data =record_query
         )
     
     
     
-Type=CRUDTypeCourriers(models.TypeCourriers)
+type_couriers = CRUDTypeCourriers(models.TypeCourriers)
     
     
     

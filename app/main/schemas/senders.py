@@ -4,7 +4,8 @@ from typing import List, Optional
 
 from sqlalchemy import DateTime
 from app.main.models.users import UserRole
-from app.main.schemas.user import UserCreate
+from app.main.schemas.file import FileSlim2
+from app.main.schemas.user import AddedBy, UserCreate
 
 class SenderBase(BaseModel):
     first_name:str
@@ -44,7 +45,8 @@ class SenderResponse(BaseModel):
     email:Optional[str]=None
     second_phone_number:Optional[str]=None
     address:Optional[str]=None
-    added_by:UserCreate
+    avatar : Optional[FileSlim2]=None
+    creator:Optional[AddedBy]=None
     created_at: datetime
     updated_at:datetime
     model_config = ConfigDict(from_attributes=True)
@@ -56,7 +58,7 @@ class SenderResponse(BaseModel):
 
 
 
-class SenderResponse(BaseModel):
+class SenderResponseList(BaseModel):
     total:int
     pages:int
     per_page:int

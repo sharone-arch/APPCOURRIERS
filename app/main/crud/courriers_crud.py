@@ -9,129 +9,86 @@ from app.main.core.i18n import __
 from sqlalchemy.orm import Session
 from app.main.crud.base import CRUDBase
 from app.main import models,schemas,crud
-from app.main.core.mail import notify_couriers_interne,notify_couriers_externe
-class CRUDCourriers(CRUDBase[models.CourierExterne, schemas.CourierExterne, schemas.CourierExterneSlim]):
+from app.main.core.mail import notify_admin_new_couriers,notify_receiver_new_mail
+class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete]):
 
     @classmethod
-    def get_couriers_interne_by_uuid(cls, db: Session, *, uuid: str) : 
-        return db.query(models.CourierInterne).filter(models.CourierInterne.uuid == uuid ,models.CourierInterne.is_deleted==False).first()
+    def get_by_uuid(cls, db: Session, *, uuid: str) : 
+        return db.query(models.Mail).filter(models.Mail.uuid == uuid ,models.Mail.is_deleted==False).first()
     
 
     @classmethod
-    def get_couriers_externe_by_uuid(cls, db: Session, *, uuid: str) : 
-        return db.query(models.CourierExterne).filter(models.CourierExterne.uuid == uuid ,models.CourierExterne.is_deleted==False).first()
+    def get_by_subject(cls, db: Session, *, subject: str) : 
+        return db.query(models.Mail).filter(models.Mail.subject == subject ,models.Mail.is_deleted==False).first()
 
 
     @classmethod
-    def create(
-        cls,
-        db: Session,
-        *,
-        db_obj_in: schemas.CourierInterneCreate,
-        obj_in: schemas.CourierExterneCreate,
-        created_by: str,
-        background_tasks: Optional[BackgroundTasks] = None
-    ):
-        # Création du courrier selon le type
-        if obj_in.type == "Interne":
-            new_courier = models.CourierInterne(
-                uuid=str(uuid.uuid4()),
-                titre=db_obj_in.titre,
-                contenu=db_obj_in.contenu,
-                document_uuid=db_obj_in.document_uuid if db_obj_in.document_uuid else None,
-                destinataire_uuid=db_obj_in.destinataire_uuid,
-                type_courrier_uuid=db_obj_in.type_courrier_uuid,
-                nature_courrier_uuid=db_obj_in.nature_courrier_uuid,
-                canal_reception_uuid=db_obj_in.canal_reception_uuid,
-                created_by=created_by
-            )
-        else:
-            new_courier = models.CourierExterne(
-                uuid=str(uuid.uuid4()),
-                titre=db_obj_in.titre,
-                contenu=db_obj_in.contenu,
-                document_uuid=db_obj_in.document_uuid if db_obj_in.document_uuid else None,
-                destinataire_uuid=db_obj_in.destinataire_uuid,
-                type_courrier_uuid=db_obj_in.type_courrier_uuid,
-                nature_courrier_uuid=db_obj_in.nature_courrier_uuid,
-                canal_reception_uuid=db_obj_in.canal_reception_uuid,
-                created_by=created_by
-            )
+    def create(cls,db: Session,*,obj_in: schemas.MailCreate,sender_uuid: str,background_tasks: Optional[BackgroundTasks] = None):
 
-        db.add(new_courier)
+        db_obj = models.Mail(
+            uuid = str(uuid.uuid4()),
+            subject=obj_in.subject,
+            content = obj_in.content,
+            document_uuid = obj_in.document_uuid,
+            receiver_uuid = obj_in.receiver_uuid,
+            type_uuid = obj_in.type_uuid,
+            nature_uuid = obj_in.nature_uuid,
+            forme_uuid = obj_in.forme_uuid,
+            canal_reception_uuid = obj_in.canal_reception_uuid,
+            sender_uuid = sender_uuid
+        )
+        db.add(db_obj)
         db.commit()
-        db.refresh(new_courier)
-
-        # Récupération des admins
-        db_admins = db.query(models.User).filter(models.User.role.in_(["ADMIN", "SUPER_ADMIN"]),models.User.is_deleted == False).all()
-
-        # Récupération de l'expéditeur
-        sender_info = db.query(models.Sender).filter(models.Sender.uuid == created_by).first()
-        if not sender_info:
-            raise HTTPException(status_code=404, detail=__(key="expediteur-not-found"))
-
-        sender_formatted = f"{sender_info.first_name} {sender_info.last_name} ({sender_info.phone_number})"
-
-        # Récupération du destinataire selon le type
-        if obj_in.type == "Interne":
-            destinataire = db.query(models.Department).filter(models.Department.uuid == db_obj_in.destinataire_uuid).first()
-            destinataire_email = destinataire.email if destinataire else None
-            destinataire_nom = destinataire.name if destinataire else "Département inconnu"
-        else:
-            destinataire = db.query(models.Externe).filter(models.Externe.uuid == db_obj_in.destinataire_uuid).first()
-            destinataire_email = destinataire.email if destinataire else None
-            destinataire_nom = destinataire.name if destinataire else "Contact externe inconnu"
-
-        # Envoi de mails aux admins
-        for admin in db_admins:
+        db.refresh(db_obj)
+        sender = db.query(models.Sender).filter(models.Sender.uuid==sender_uuid).first()
+        receiver = db.query(models.Externe).filter(models.Externe.uuid==obj_in.receiver_uuid).first()
+        
+        admins = crud.user.get_all_users(db=db)
+        for admin in admins:
             background_tasks.add_task(
-                notify_couriers_interne if obj_in.type == "Interne" else notify_couriers_externe,
-                email_to=admin.email,
-                name=f"{admin.first_name} {admin.last_name}",
-                titre=new_courier.titre,
-                contenu=new_courier.contenu,
-                sender=sender_formatted,
-                receiver=destinataire_email or "N/A",
-                type=obj_in.type,
-            )
+                notify_admin_new_couriers(
+                    email_to=admin.email,
+                    name=f"{admin.first_name} {admin.last_name}", 
+                    subject=obj_in.subject,
+                    content = obj_in.content,
+                    sender = f"{sender.first_name} {sender.last_name}", 
 
-        # Notification directe au destinataire (interne ou externe)
-        if destinataire_email:
-            background_tasks.add_task(
-                notify_couriers_interne if obj_in.type == "Interne" else notify_couriers_externe,
-                email_to=destinataire_email,
-                name=destinataire_nom,
-                titre=new_courier.titre,
-                contenu=new_courier.contenu,
-                sender=sender_formatted,
-                receiver=destinataire_email,
-                type=obj_in.type,
+                )
             )
+        notify_receiver_new_mail(
+            email_to= receiver.email,
+            name = receiver.name,
+            subject=obj_in.subject,
+            content = obj_in.content,
+            sender = f"{sender.first_name} {sender.last_name}", 
 
-        return new_courier
+        )
+
+        return db_obj
+
 
             
         
     
 
     @classmethod
-    def update(
-        cls,
-        db: Session,
-        *,
-        db_obj: Union[models.CourierInterne, models.CourierExterne],
-        obj_in: Union[schemas.CourierInterneUpdate, schemas.CourierExterneUpdate]
-    ):
-        update_data = obj_in.dict(exclude_unset=True)
-
-        for field, value in update_data.items():
-            setattr(db_obj, field, value)
-
-        db.add(db_obj)
+    def update(cls,db: Session,*,obj_in:schemas.MailUpdate,sender_uuid:str):
+        db_obj = cls.get_by_uuid(db=db,uuid=obj_in.uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
+        db_obj.subject = obj_in.subject if obj_in.subject else db_obj.subject
+        db_obj.content = obj_in.content if obj_in.content else db_obj.content
+        db_obj.document_uuid = obj_in.document_uuid if obj_in.document_uuid else db_obj.document_uuid
+        db_obj.receiver_uuid = obj_in.receiver_uuid if obj_in.receiver_uuid else db_obj.receiver_uuid
+        db_obj.type_uuid = obj_in.type_uuid if obj_in.type_uuid else db_obj.type_uuid
+        db_obj.nature_uuid = obj_in.nature_uuid if obj_in.nature_uuid else db_obj.nature_uuid
+        db_obj.forme_uuid = obj_in.forme_uuid if obj_in.forme_uuid else db_obj.forme_uuid
+        db_obj.canal_reception_uuid = obj_in.canal_reception_uuid if obj_in.canal_reception_uuid else db_obj.canal_reception_uuid
+        sender_uuid = sender_uuid
         db.commit()
         db.refresh(db_obj)
-
         return db_obj
+        
 
 
 
@@ -139,7 +96,7 @@ class CRUDCourriers(CRUDBase[models.CourierExterne, schemas.CourierExterne, sche
     def soft_delete(cls,db:Session,*,uuid:str):
         db_obj = cls.get_by_uuid(db=db,uuid=uuid)
         if not db_obj:
-            raise HTTPException(status_code=404,detail=__(key="courrier-not-found"))
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
         db_obj.is_deleted = False
         db.commit()
     
@@ -147,7 +104,7 @@ class CRUDCourriers(CRUDBase[models.CourierExterne, schemas.CourierExterne, sche
     def delete(cls,db:Session,*,uuid:str):
         db_obj = cls.get_by_uuid(db=db,uuid=uuid)
         if not db_obj:
-            raise HTTPException(status_code=404,detail=__(key="courrier-not-found"))
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
         db.delete(db_obj)
         db.commit()
 
@@ -155,16 +112,16 @@ class CRUDCourriers(CRUDBase[models.CourierExterne, schemas.CourierExterne, sche
     def update_status(cls,db:Session,uuid:str,status:str):
         db_obj = cls.get_by_uuid(db=db,uuid=uuid)
         if not db_obj:
-            raise HTTPException(status_code=404,detail=__(key="courrier-not-found"))
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
         db_obj.status = status
         db.commit()
         
     @classmethod
-    def appose_cachet(cls,db:Session,uuid:str):
+    def appose_cachet(cls,db:Session,uuid:str,status:str):
         db_obj = cls.get_by_uuid(db=db,uuid=uuid)
         if not db_obj:
-            raise HTTPException(status_code=404,detail=__(key="courrier-not-found"))
-        db_obj.status = models.CourierStatus.ARRIVE
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
+        db_obj.status = status
         db.commit()
 
     
@@ -178,27 +135,27 @@ class CRUDCourriers(CRUDBase[models.CourierExterne, schemas.CourierExterne, sche
         status:Optional[str] = None,
         keyword:Optional[str]= None
     ):
-        record_query = db.query(models.CourierExterne).filter(models.CourierExterne.is_deleted == False)
+        record_query = db.query(models.Mail).filter(models.Mail.is_deleted == False)
         if keyword:
             record_query = record_query.filter(
                 or_(
-                    models.CourierExterne.titre.ilike('%' + str(keyword) + '%'),
-                    models.CourierExterne.contenu.ilike('%' + str(keyword) + '%'),
+                    models.Mail.subject.ilike('%' + str(keyword) + '%'),
+                    models.Mail.content.ilike('%' + str(keyword) + '%'),
 
                 )
             )
         if status:
-            record_query = record_query.filter(models.CourierExterne.status == status)
+            record_query = record_query.filter(models.Mail.status == status)
         
         if order and order.lower() == "asc":
-            record_query = record_query.order_by(models.CourierExterne.date_added.asc())
+            record_query = record_query.order_by(models.Mail.date_added.asc())
         
         elif order and order.lower() == "desc":
-            record_query = record_query.order_by(models.CourierExterne.date_added.desc())
+            record_query = record_query.order_by(models.Mail.date_added.desc())
         total = record_query.count()
         record_query = record_query.offset((page - 1) * per_page).limit(per_page)
 
-        return schemas.CourrierExterneResponseList(
+        return schemas.MailResponseList(
             total = total,
             pages = math.ceil(total/per_page),
             per_page = per_page,

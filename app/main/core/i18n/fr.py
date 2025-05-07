@@ -25,9 +25,9 @@ translation = {
     "forme-courrier-not-found":"forme de courrier introuvable",
     "nature-courrier-not-found":"nature courrier introuvable",
     "externe-not-found" :"Destinataire Introuvable",
-    "receiver-created-successfully" : "Destinataire crée avec succès",
-    "receiver-updated-successfully" : "Destinataire modifié avec succès",
-    "receiver-deleted-successfully" : "Destinataire supprimé avec succès",
+    "receiver-created-successfully" : "Entité crée avec succès",
+    "receiver-updated-successfully" : "Entité modifié avec succès",
+    "receiver-deleted-successfully" : "Entité supprimé avec succès",
     "status-updated-successfully" : "Statut mise à jour avec succès"
 }
 

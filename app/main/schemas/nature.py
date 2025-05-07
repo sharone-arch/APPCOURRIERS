@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from sqlalchemy import DateTime
 from app.main.models.users import UserRole
-from app.main.schemas.user import UserCreate
+from app.main.schemas.user import AddedBy, UserCreate
 
 
 
@@ -33,6 +33,7 @@ class NatureCourriersDelete(BaseModel):
 class NatureCourriersResponse(BaseModel):
     uuid:str
     name:str
+    creator:AddedBy
     created_at: datetime
     updated_at:datetime
     model_config =ConfigDict(from_attributes=True)

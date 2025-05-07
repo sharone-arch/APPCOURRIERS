@@ -27,9 +27,9 @@ translation = {
     "forme-courrier-not-found" :"forme-courrier-not-found",
     "nature-courrier-not-found" :"nature-courrier-not-found",
     "externe-not-found" : "Receiver not found",
-    "receiver-created-successfully" : "Receiver created successfully",
-    "receiver-updated-successfully" : "Receiver updated successfully",
-    "receiver-deleted-successfully" : "Receiver deleted successfully",
+    "receiver-created-successfully" : "Entity created successfully",
+    "receiver-updated-successfully" : "Entity updated successfully",
+    "receiver-deleted-successfully" : "Entity deleted successfully",
     "status-updated-successfully" : "Status updated successfully "
 
 } 
