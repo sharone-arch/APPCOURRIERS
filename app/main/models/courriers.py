@@ -48,6 +48,7 @@ class Mail(Base):
     canal_reception = relationship("CanauxReceptionCourier", foreign_keys=[canal_reception_uuid])
 
     status = Column(String,nullable=True, default=MailStatus.RECU)
+    number = Column(String,nullable=True)
 
     is_deleted = Column(Boolean,default=False)
 

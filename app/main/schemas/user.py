@@ -9,6 +9,7 @@ class AddedBy(BaseModel):
     email: EmailStr
     first_name:str
     last_name:str
+    phone_number:Optional[str]=None
     role:UserRole
 
     model_config = ConfigDict(from_attributes=True)

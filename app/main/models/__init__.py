@@ -11,3 +11,7 @@ from .departements import *
 from .entities import *
 from .courriers import *
 from .senders import *
+from .mail_transmissions import *
+from .mail_registers import *
+from .transmission_logs import *
+from .mail_statistics import *

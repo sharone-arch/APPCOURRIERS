@@ -92,7 +92,7 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
     def get_all_users(cls, db: Session):
         return db.query(models.User).filter(
             models.User.is_deleted == False,
-            models.User.role.in_(["ADMIN", "EDIMESTRE"])
+            models.User.role.in_(["ADMIN", "EDIMESTRE","SUPER_ADMIN"])
         ).all()
     
     @classmethod

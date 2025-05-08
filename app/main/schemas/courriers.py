@@ -12,11 +12,14 @@ from app.main.schemas.nature import NatureCourriersSlim
 from app.main.schemas.type import TypeCourriersSlim
 from app.main.schemas.user import AddedBy
 
+class DocumentsBase(BaseModel):
+    document_uuid:Optional[str]=None
+
 
 class MailBase(BaseModel):
     subject:str
     content:str
-    document_uuid:Optional[str]=None
+    document_uuid:Optional[List[DocumentsBase]]=None
     receiver_uuid:str
     type_uuid:str
     nature_uuid:str
@@ -43,14 +46,20 @@ class Mail(BaseModel):
     uuid:str
     subject:str
     content:str
-    document:Optional[FileSlim2]=None
+    number:str
+    received_at:Optional[datetime]=None
+    sent_at : Optional[datetime]=None
+    documents:Optional[FileSlim2]=None
     receiver:Optional[ExterneSlim]=None
     type:Optional[TypeCourriersSlim]=None
     nature:Optional[NatureCourriersSlim]=None
     forme:Optional[FormesSlim]=None
     canal_reception:Optional[CanauxReceptionCourierSlim]=None
     sender : Optional[AddedBy]=None
+    created_at: datetime
+    updated_at: Optional[str]=None
     model_config = ConfigDict(from_attributes=True)
+
 
 class MailResponseList(BaseModel):
     total:int
@@ -60,6 +69,35 @@ class MailResponseList(BaseModel):
     data : List[Mail]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+
+class MailSlimSender(BaseModel):
+    uuid:str
+    subject:str
+    content:str
+    number:str
+    received_at:Optional[datetime]=None
+    sent_at : Optional[datetime]=None
+    documents:Optional[FileSlim2]=None
+    receiver:Optional[ExterneSlim]=None
+    type:Optional[TypeCourriersSlim]=None
+    nature:Optional[NatureCourriersSlim]=None
+    forme:Optional[FormesSlim]=None
+    canal_reception:Optional[CanauxReceptionCourierSlim]=None
+    created_at: datetime
+    updated_at: Optional[str]=None
+    model_config = ConfigDict(from_attributes=True)
+
+class MailSlimSenderResponseList(BaseModel):
+    total:int
+    pages:int
+    per_page:int
+    current_page :int
+    data : List[MailSlimSender]
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 
 class MailDelete(BaseModel):

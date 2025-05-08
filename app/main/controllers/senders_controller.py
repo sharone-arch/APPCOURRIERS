@@ -32,7 +32,7 @@ def create_sender(
         raise HTTPException(status_code=409, detail=__(key="second-phone-number-already-used")) 
     
     if obj_in.avatar_uuid:
-        avatar = crud.storage_crud.get_file_by_uuid(db=db, uuid=obj_in.avatar_uuid)
+        avatar = crud.storage_crud.get_file_by_uuid(db=db,file_uuid=obj_in.avatar_uuid)
         if not avatar:
             raise HTTPException(status_code=404, detail=__(key="avatar-not-found"))
 
@@ -90,3 +90,15 @@ def get(
         page, 
         per_page, 
     )
+
+@router.get("/get_by_uuid", response_model=schemas.SenderResponse)
+async def get_data_by_uuid(
+    *,
+    db: Session = Depends(get_db),
+    uuid: str,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+):
+    data = crud.sender.get_by_uuid(db=db, uuid=uuid)
+    if not data:
+        raise HTTPException(status_code=404, detail=__(key="sender-not-found"))
+    return data

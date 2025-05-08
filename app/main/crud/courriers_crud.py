@@ -7,9 +7,12 @@ from typing import List, Optional, Union
 import uuid
 from app.main.core.i18n import __
 from sqlalchemy.orm import Session
+from app.main.core.security import generate_courier_code
 from app.main.crud.base import CRUDBase
 from app.main import models,schemas,crud
 from app.main.core.mail import notify_admin_new_couriers,notify_receiver_new_mail
+from functools import partial
+
 class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete]):
 
     @classmethod
@@ -22,49 +25,62 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         return db.query(models.Mail).filter(models.Mail.subject == subject ,models.Mail.is_deleted==False).first()
 
 
+    
     @classmethod
-    def create(cls,db: Session,*,obj_in: schemas.MailCreate,sender_uuid: str,background_tasks: Optional[BackgroundTasks] = None):
-
+    def create(cls, db: Session, *, obj_in: schemas.MailCreate, sender_uuid: str, background_tasks: BackgroundTasks):
+        number = generate_courier_code(counter=1)
         db_obj = models.Mail(
-            uuid = str(uuid.uuid4()),
+            uuid=str(uuid.uuid4()),
             subject=obj_in.subject,
-            content = obj_in.content,
-            document_uuid = obj_in.document_uuid,
-            receiver_uuid = obj_in.receiver_uuid,
-            type_uuid = obj_in.type_uuid,
-            nature_uuid = obj_in.nature_uuid,
-            forme_uuid = obj_in.forme_uuid,
-            canal_reception_uuid = obj_in.canal_reception_uuid,
-            sender_uuid = sender_uuid
+            content=obj_in.content,
+            document_uuid=obj_in.document_uuid,
+            receiver_uuid=obj_in.receiver_uuid,
+            type_uuid=obj_in.type_uuid,
+            nature_uuid=obj_in.nature_uuid,
+            forme_uuid=obj_in.forme_uuid,
+            canal_reception_uuid=obj_in.canal_reception_uuid,
+            sender_uuid=sender_uuid,
+            number = number
         )
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
-        sender = db.query(models.Sender).filter(models.Sender.uuid==sender_uuid).first()
-        receiver = db.query(models.Externe).filter(models.Externe.uuid==obj_in.receiver_uuid).first()
-        
+
+        # Récupération des infos de l'expéditeur et du destinataire
+        sender = db.query(models.Sender).filter(models.Sender.uuid == sender_uuid).first()
+        if not sender:
+            raise HTTPException(status_code=404,detail=__(key="sender-not-found"))
+        receiver = db.query(models.Externe).filter(models.Externe.uuid == obj_in.receiver_uuid).first()
+        if not receiver:
+            raise HTTPException(status_code=404,detail=__(key="receiver-not-found"))
+
         admins = crud.user.get_all_users(db=db)
+        if not admins:
+            raise HTTPException(status_code=404,detail=__(key="admins-not-found"))
+
+        # Notifications aux admins
         for admin in admins:
             background_tasks.add_task(
-                notify_admin_new_couriers(
-                    email_to=admin.email,
-                    name=f"{admin.first_name} {admin.last_name}", 
-                    subject=obj_in.subject,
-                    content = obj_in.content,
-                    sender = f"{sender.first_name} {sender.last_name}", 
-
-                )
+                notify_admin_new_couriers,
+                email_to=admin.email,
+                name=f"{admin.first_name} {admin.last_name}",
+                subject=obj_in.subject,
+                content=obj_in.content,
+                sender=f"{sender.first_name} {sender.last_name}"
             )
-        notify_receiver_new_mail(
-            email_to= receiver.email,
-            name = receiver.name,
-            subject=obj_in.subject,
-            content = obj_in.content,
-            sender = f"{sender.first_name} {sender.last_name}", 
 
+        # Notification au destinataire
+        background_tasks.add_task(
+            notify_receiver_new_mail,
+            email_to=receiver.email,
+            name=receiver.name,
+            subject=obj_in.subject,
+            content=obj_in.content,
+            sender=f"{sender.first_name} {sender.last_name}"
         )
 
         return db_obj
+
 
 
             
@@ -156,6 +172,47 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         record_query = record_query.offset((page - 1) * per_page).limit(per_page)
 
         return schemas.MailResponseList(
+            total = total,
+            pages = math.ceil(total/per_page),
+            per_page = per_page,
+            current_page =page,
+            data =record_query
+        )
+    
+
+
+    @classmethod
+    def get_sender_mail(
+        cls,
+        db:Session,
+        page:int = 1,
+        per_page:int = 30,
+        order:Optional[str] = None,
+        status:Optional[str] = None,
+        keyword:Optional[str]= None,
+        sender_uuid : Optional[str]=None
+    ):
+        record_query = db.query(models.Mail).filter(models.Mail.is_deleted == False,models.Mail.sender_uuid==sender_uuid)
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    models.Mail.subject.ilike('%' + str(keyword) + '%'),
+                    models.Mail.content.ilike('%' + str(keyword) + '%'),
+
+                )
+            )
+        if status:
+            record_query = record_query.filter(models.Mail.status == status)
+        
+        if order and order.lower() == "asc":
+            record_query = record_query.order_by(models.Mail.date_added.asc())
+        
+        elif order and order.lower() == "desc":
+            record_query = record_query.order_by(models.Mail.date_added.desc())
+        total = record_query.count()
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)
+
+        return schemas.MailSlimSenderResponseList(
             total = total,
             pages = math.ceil(total/per_page),
             per_page = per_page,

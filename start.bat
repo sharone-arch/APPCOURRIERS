@@ -17,3 +17,4 @@ admin@example.com
   "email": "chantal.mbarga@example.com",
   "password": ">8iTrW*>"
 }
+

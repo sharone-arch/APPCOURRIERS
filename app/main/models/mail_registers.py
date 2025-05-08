@@ -10,17 +10,23 @@ from app.main.models.db.base_class import Base
 from enum import Enum
 
 
-class CahierTransmission(Base):
-    __tablename__ = "cahiers_transmission"
+class RegisterType(str,Enum):
+    ARRIVEE = "ARRIVEE"
+    DEPART = "DEPART"
+
+class RegistresCourriers(Base):
+    __tablename__ = "mail_registers"
 
     uuid = Column(String, primary_key=True, index=True)
-    courrier_uuid = Column(String, ForeignKey("courriers.uuid", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
-    courrier = relationship("Courrier", back_populates="cahiers_transmission")  # Relation Many-to-One avec Courrier
-    date_transmission = Column(DateTime, default=func.now(), nullable=False)  # Date de transmission
-    transmis_par = Column(String, nullable=False)  # Personne qui a transmis
-    transmis_a = Column(String, nullable=False)  # Personne à qui c'est transmis
-    remarques = Column(String, nullable=True)  # Remarques supplémentaires
+    mail_uuid = Column(String, ForeignKey("mails.uuid", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    mail = relationship("Mail", foreign_keys=[mail_uuid])
+
+    register_type = Column(String,default=RegisterType.ARRIVEE,nullable=True)
+    number = Column(String,nullable=True)
+
+    added_by = Column(String, ForeignKey("users.uuid"), nullable=False)
+    creator = relationship("User", foreign_keys=[added_by])
+
     is_deleted = Column(Boolean,default=False)
-    
     created_at = Column(DateTime, default=func.now())  # Date de création de l'enregistrement
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())  # Date de la dernière mise à jour
