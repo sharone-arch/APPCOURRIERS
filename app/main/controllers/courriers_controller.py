@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.main.core.dependencies import get_db, TokenRequired
 from app.main import schemas, crud, models
 from app.main.core.i18n import __
+from app.main.core.mail import notify_receiver_new_mail
 from app.main.core.security import create_access_token, get_password_hash
 from app.main.core.config import Config
 from app.main.core.dependencies import TokenRequired
@@ -22,8 +23,8 @@ async def create_mail(
     current_user: models.User = Depends(TokenRequired(roles=["SENDER"]))
 ):
     if obj_in.document_uuid:
-        documents = crud.storage_crud.get_file_by_uuid(db=db,file_uuid=obj_in.document_uuid)
-        if not documents:
+        document = crud.storage_crud.get_file_by_uuid(db=db, file_uuid=obj_in.document_uuid)
+        if not document:
             raise HTTPException(status_code=404,detail=__(key="document-not-found"))
     receiver = crud.externe.get_by_uuid(db=db,uuid=obj_in.receiver_uuid)
     if not receiver:
@@ -49,12 +50,11 @@ async def update_mail(
      *,
     db: Session = Depends(get_db),
     obj_in: schemas.MailUpdate,
-    background_tasks: BackgroundTasks,
     current_user: models.User = Depends(TokenRequired(roles=["SENDER"]))
 ):
     if obj_in.document_uuid:
-        documents = crud.storage_crud.get_file_by_uuid(db=db,file_uuid=obj_in.document_uuid)
-        if not documents:
+        document = crud.storage_crud.get_file_by_uuid(db=db, file_uuid=obj_in.document_uuid)
+        if not document:
             raise HTTPException(status_code=404,detail=__(key="document-not-found"))
     receiver = crud.externe.get_by_uuid(db=db,uuid=obj_in.receiver_uuid)
     if not receiver:
@@ -117,7 +117,7 @@ def get(
     order:str= Query(None,enum=["ASC","DESC"]),
     status:Optional[str] = None,
     keyword:Optional[str]= None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN","SENDER"]))
 ):
     
     return crud.courriers.get_many(
@@ -152,10 +152,40 @@ def get(
         sender_uuid=current_user.uuid
     )
 
+@router.put("/send-receiver-mail", response_model=schemas.Msg)
+async def send_receiver_mail(
+    *,
+    db: Session = Depends(get_db),
+    obj_in: schemas.MailDetails
+):
+    # 1. Récupération du courrier
+    mail = crud.courriers.get_by_uuid(db=db, uuid=obj_in.uuid)
+    if not mail:
+        raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+    # 2. Vérifier si déjà transféré
+    if mail.is_transferred:
+        raise HTTPException(status_code=400, detail=__(key="mail-is-already-send"))
+    # 3. Récupération du destinataire
+    receiver = crud.externe.get_by_uuid(db=db, uuid=mail.receiver_uuid)
+    if not receiver:
+        raise HTTPException(status_code=404, detail=__(key="receiver-not-found"))
+    # 4. Récupération de l’expéditeur
+    sender = crud.sender.get_by_uuid(db=db, uuid=mail.sender_uuid)
+    if not sender:
+        raise HTTPException(status_code=404, detail=__(key="sender-not-found"))
 
+    # 5. Mise à jour de l'état
+    mail.is_transferred = True
+    mail.sent_at = datetime.now()
+    db.commit()
 
+    # 6. Envoi de la notification
+    notify_receiver_new_mail(
+        email_to=receiver.email,
+        name=receiver.name,
+        subject=mail.subject,
+        content=mail.content,
+        sender=f"{sender.first_name} {sender.last_name}"
+    )
 
-
-
-
-
+    return {"message": __(key="mail-transferred-successfully")}

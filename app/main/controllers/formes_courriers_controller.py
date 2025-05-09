@@ -60,14 +60,14 @@ def delete_Forme(
 
 
 @router.get("/get_all", response_model=None) # type: ignore
-def get_all_Formes(
+def get_all_formes(
     db: Session = Depends(get_db),
     page: int =  1,
     per_page: int = 10,
     order:str= Query(None,enum=["ASC","DESC"]),
     order_field: Optional[str] = None,
     keyword: Optional[str] = None,
-    current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
 ):
      return crud.formes_couriers.get_many(
         db=db,

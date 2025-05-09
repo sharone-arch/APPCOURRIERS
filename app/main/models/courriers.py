@@ -14,7 +14,7 @@ class MailStatus(str, Enum):
     RECU = "RECU"
     EN_TRAITEMENT = "EN_TRAITEMENT"
     TRAITE = "TRAITE"
-    ARCHIVE = "ARCHIVE"
+    ARRIVE = "ARRIVE"
 
 class Mail(Base):
     __tablename__ = "mails"
@@ -24,9 +24,6 @@ class Mail(Base):
     content = Column(Text, nullable=False)
     received_at = Column(DateTime, server_default=func.now())
     sent_at = Column(DateTime, nullable=True)
-
-    document_uuid = Column(String, ForeignKey("storages.uuid"), nullable=True)
-    documents = relationship("Storage", foreign_keys=[document_uuid])
     
     sender_uuid = Column(String, ForeignKey("users.uuid"), nullable=True)
     sender = relationship("User", foreign_keys=[sender_uuid])
@@ -40,6 +37,9 @@ class Mail(Base):
     nature_uuid = Column(String, ForeignKey("nature_couriers.uuid"), nullable=True)
     nature = relationship("NatureCourriers", foreign_keys=[nature_uuid])
 
+    document_uuid = Column(String, ForeignKey("storages.uuid"), nullable=True)
+    documents = relationship("Storage", foreign_keys=[document_uuid])
+
 
     forme_uuid = Column(String, ForeignKey("formes_couriers.uuid"), nullable=True)
     forme = relationship("FormesCourriers", foreign_keys=[forme_uuid])
@@ -51,6 +51,10 @@ class Mail(Base):
     number = Column(String,nullable=True)
 
     is_deleted = Column(Boolean,default=False)
+    
+    is_transferred = Column(Boolean, default=False)
+    is_archived = Column(Boolean, default=False)
+
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())

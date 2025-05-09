@@ -76,7 +76,7 @@ async def get_all_receiver(
     per_page: int = 25,
     order:str= Query(None,enum=["ASC","DESC"]),
     keyword: Optional[str] = None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
 ):
      return crud.externe.get_many(
         db=db,

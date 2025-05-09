@@ -146,14 +146,18 @@ def is_valid_password(password):
           lowercase and uppercase and number)
 
 
-def generate_courier_code(counter: int, prefix: str = "CR"):
-    """
-    Génère un code unique pour un courrier.
-    Exemple : CR-20240508-0012
+# Simuler une base de données mémoire pour suivre le dernier numéro du jour
+last_counters = {}
 
-    :param counter: Numéro du courrier (ex: 12)
-    :param prefix: Préfixe du code (ex: "CR" pour courrier)
-    :return: Code généré sous forme de chaîne
-    """
-    today = datetime.now().strftime("%Y%m%d")
-    return f"{prefix}-{today}-{counter:04d}"
+def generate_courrier_code():
+    today_str = datetime.now().strftime('%Y%m%d')
+    
+    # Si on a déjà des courriers pour aujourd'hui, on incrémente
+    if today_str in last_counters:
+        last_counters[today_str] += 1
+    else:
+        last_counters[today_str] = 1
+
+    # Format du code : CR-YYYYMMDD-XXXX
+    counter_str = str(last_counters[today_str]).zfill(4)
+    return f"CR-{today_str}-{counter_str}"

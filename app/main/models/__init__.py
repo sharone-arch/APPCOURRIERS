@@ -15,3 +15,4 @@ from .mail_transmissions import *
 from .mail_registers import *
 from .transmission_logs import *
 from .mail_statistics import *
+from .documents_mails import *

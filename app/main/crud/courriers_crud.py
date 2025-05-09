@@ -1,3 +1,4 @@
+from datetime import datetime
 import math
 import bcrypt
 from fastapi import BackgroundTasks, HTTPException
@@ -7,11 +8,12 @@ from typing import List, Optional, Union
 import uuid
 from app.main.core.i18n import __
 from sqlalchemy.orm import Session
-from app.main.core.security import generate_courier_code
+from app.main.core.security import generate_courrier_code
 from app.main.crud.base import CRUDBase
 from app.main import models,schemas,crud
 from app.main.core.mail import notify_admin_new_couriers,notify_receiver_new_mail
 from functools import partial
+from sqlalchemy.orm import joinedload
 
 class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete]):
 
@@ -21,20 +23,33 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
     
 
     @classmethod
+    def get_all_mail_by_uuid(cls, db: Session, *, uuid: str):
+        return db.query(models.Mail).options(joinedload(models.Mail.documents,models.MailDocument.is_deleted==False,models.Mail.uuid==uuid)).filter(models.Mail.is_deleted == False)
+    
+
+    @classmethod
     def get_by_subject(cls, db: Session, *, subject: str) : 
         return db.query(models.Mail).filter(models.Mail.subject == subject ,models.Mail.is_deleted==False).first()
+    
+    @classmethod
+    def get_daily_counter(cls,*,db:Session):
+        today_str = datetime.now().strftime("%Y%m%d")
+        # Exemple avec SQLAlchemy
+        count = db.query(models.Mail).filter(models.Mail.is_deleted==False,models.Mail.created_at.startswith(today_str)).count()
+        return count + 1
 
 
     
     @classmethod
     def create(cls, db: Session, *, obj_in: schemas.MailCreate, sender_uuid: str, background_tasks: BackgroundTasks):
-        number = generate_courier_code(counter=1)
+        number = generate_courrier_code()
+        print(f"Code du nouveau courrier {number}")  # Exemple : CR-20250509-0001
         db_obj = models.Mail(
             uuid=str(uuid.uuid4()),
             subject=obj_in.subject,
             content=obj_in.content,
-            document_uuid=obj_in.document_uuid,
             receiver_uuid=obj_in.receiver_uuid,
+            document_uuid = obj_in.document_uuid,
             type_uuid=obj_in.type_uuid,
             nature_uuid=obj_in.nature_uuid,
             forme_uuid=obj_in.forme_uuid,
@@ -81,32 +96,25 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
 
         return db_obj
 
-
-
-            
-        
-    
-
     @classmethod
-    def update(cls,db: Session,*,obj_in:schemas.MailUpdate,sender_uuid:str):
-        db_obj = cls.get_by_uuid(db=db,uuid=obj_in.uuid)
+    def update(cls, db: Session, *, obj_in: schemas.MailUpdate, sender_uuid: str):
+        db_obj = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
         if not db_obj:
-            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
+            raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+
+        # Mise à jour des champs du mail
         db_obj.subject = obj_in.subject if obj_in.subject else db_obj.subject
         db_obj.content = obj_in.content if obj_in.content else db_obj.content
-        db_obj.document_uuid = obj_in.document_uuid if obj_in.document_uuid else db_obj.document_uuid
         db_obj.receiver_uuid = obj_in.receiver_uuid if obj_in.receiver_uuid else db_obj.receiver_uuid
         db_obj.type_uuid = obj_in.type_uuid if obj_in.type_uuid else db_obj.type_uuid
         db_obj.nature_uuid = obj_in.nature_uuid if obj_in.nature_uuid else db_obj.nature_uuid
         db_obj.forme_uuid = obj_in.forme_uuid if obj_in.forme_uuid else db_obj.forme_uuid
         db_obj.canal_reception_uuid = obj_in.canal_reception_uuid if obj_in.canal_reception_uuid else db_obj.canal_reception_uuid
+        db_obj.document_uuid = obj_in.document_uuid if obj_in.document_uuid else db_obj.document_uuid
         sender_uuid = sender_uuid
         db.commit()
         db.refresh(db_obj)
         return db_obj
-        
-
-
 
     @classmethod
     def soft_delete(cls,db:Session,*,uuid:str):
@@ -192,7 +200,7 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         keyword:Optional[str]= None,
         sender_uuid : Optional[str]=None
     ):
-        record_query = db.query(models.Mail).filter(models.Mail.is_deleted == False,models.Mail.sender_uuid==sender_uuid)
+        record_query = db.query(models.Mail).options(joinedload(models.Mail.documents,models.MailDocument.is_deleted==False)).filter(models.Mail.is_deleted == False,models.Mail.sender_uuid==sender_uuid)
         if keyword:
             record_query = record_query.filter(
                 or_(

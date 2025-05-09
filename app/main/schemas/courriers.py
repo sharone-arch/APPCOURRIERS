@@ -8,18 +8,16 @@ from app.main.schemas.canaux_reception import CanauxReceptionCourierSlim
 from app.main.schemas.externes import ExterneInDB, ExterneSlim
 from app.main.schemas.file import FileSlim2
 from app.main.schemas.formes import FormesSlim
+from app.main.schemas.mail_documents import MailDocumentOut
 from app.main.schemas.nature import NatureCourriersSlim
 from app.main.schemas.type import TypeCourriersSlim
 from app.main.schemas.user import AddedBy
-
-class DocumentsBase(BaseModel):
-    document_uuid:Optional[str]=None
 
 
 class MailBase(BaseModel):
     subject:str
     content:str
-    document_uuid:Optional[List[DocumentsBase]]=None
+    document_uuid:Optional[str]=None
     receiver_uuid:str
     type_uuid:str
     nature_uuid:str
@@ -47,9 +45,10 @@ class Mail(BaseModel):
     subject:str
     content:str
     number:str
+    is_transferred: bool
     received_at:Optional[datetime]=None
     sent_at : Optional[datetime]=None
-    documents:Optional[FileSlim2]=None
+    documents: Optional[FileSlim2]=None
     receiver:Optional[ExterneSlim]=None
     type:Optional[TypeCourriersSlim]=None
     nature:Optional[NatureCourriersSlim]=None
@@ -57,7 +56,7 @@ class Mail(BaseModel):
     canal_reception:Optional[CanauxReceptionCourierSlim]=None
     sender : Optional[AddedBy]=None
     created_at: datetime
-    updated_at: Optional[str]=None
+    updated_at: Optional[datetime]=None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -77,9 +76,10 @@ class MailSlimSender(BaseModel):
     subject:str
     content:str
     number:str
+    is_transferred:bool
     received_at:Optional[datetime]=None
     sent_at : Optional[datetime]=None
-    documents:Optional[FileSlim2]=None
+    documents: Optional[FileSlim2]=None
     receiver:Optional[ExterneSlim]=None
     type:Optional[TypeCourriersSlim]=None
     nature:Optional[NatureCourriersSlim]=None

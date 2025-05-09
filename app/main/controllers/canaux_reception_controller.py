@@ -11,7 +11,7 @@ from app.main.core.config import Config
 from app.main.core.dependencies import TokenRequired
 
 
-router = APIRouter(prefix="/canaux-reception", tags=["canaux_reception"])
+router = APIRouter(prefix="/chanel", tags=["chanel"])
 
 @router.post("/create", response_model=schemas.Msg)
 def create_channel(
@@ -30,7 +30,7 @@ def create_channel(
 
 
 
-@router.get("/get_all", response_model=List[schemas.CanauxReceptionResponse]) # type: ignore
+@router.get("/get_list", response_model=List[schemas.CanauxReceptionResponse]) # type: ignore
 def get_all_channel(
     *,
     db: Session = Depends(get_db),
@@ -74,7 +74,7 @@ def delete_channel(
     crud.canaux.delete(db=db, uuid=obj_in.uuid)
     return {"message" :__(key="channel-deleted-successfully")}
 
-@router.get("/get_all_canaux-chanel", response_model=None)
+@router.get("/get_all", response_model=None)
 def get_all_canaux_chanel(
     *,
     db: Session = Depends(get_db),
@@ -83,7 +83,7 @@ def get_all_canaux_chanel(
     order:str= Query(None,enum=["ASC","DESC"]),
     order_field: Optional[str] = None,
     keyword: Optional[str] = None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
 
 ):
     return crud.canaux.get_many(

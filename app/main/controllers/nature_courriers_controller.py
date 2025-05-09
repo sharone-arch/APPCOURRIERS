@@ -62,12 +62,13 @@ def delete_Nature(
 
 
 @router.get("/get_all", response_model=None) # type: ignore
-def get_all_Nature(
+def get_all_nature(
     db: Session = Depends(get_db),
     page: int =  1,
     per_page: int = 10,
     order:str= Query(None,enum=["ASC","DESC"]),
     keyword: Optional[str] = None,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
 ):
      return crud.Nature.get_many(
         db=db,

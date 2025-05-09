@@ -53,6 +53,7 @@ class ExterneResponseList(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class ExterneSlim(BaseModel):
+    uuid:str
     name: str
     email: str
     phone_number: str

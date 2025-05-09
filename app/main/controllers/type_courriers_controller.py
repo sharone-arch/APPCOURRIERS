@@ -63,13 +63,14 @@ def delete_Type(
 
 
 @router.get("/get_all", response_model=None)  # type: ignore
-def get_all_Nature(
+def get_all_type(
     *,
     db: Session = Depends(get_db),
     page: int = 1,
     per_page: int = 10,
     order: str = Query(None, enum=["ASC", "DESC"]),
     keyword: Optional[str] = None,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
 ):
     return crud.type_couriers.get_many(  # Correction : appeler la méthode de classe directement
         db=db,
