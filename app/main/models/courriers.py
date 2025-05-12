@@ -14,7 +14,7 @@ class MailStatus(str, Enum):
     RECU = "RECU"
     EN_TRAITEMENT = "EN_TRAITEMENT"
     TRAITE = "TRAITE"
-    ARRIVE = "ARRIVE"
+    ARCHIVE = "ARRIVE"
 
 class Mail(Base):
     __tablename__ = "mails"
@@ -52,9 +52,13 @@ class Mail(Base):
 
     is_deleted = Column(Boolean,default=False)
     
+    
     is_transferred = Column(Boolean, default=False)
     is_archived = Column(Boolean, default=False)
-
+    is_open =  Column(Boolean, default=False)
+    received_by_office = Column(Boolean, default=False)  # Indique si le courrier a été reçu par le Bureau d'ordre
+    is_diffused = Column(Boolean, default=False)  # Indique si le courrier a été diffusé par le Bureau d'ordre
+    
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())

@@ -3,6 +3,11 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from app.main.schemas.user import AddedBy
 
+class ExterneSlim2(BaseModel):
+    name: str
+    type: str  # client, fournisseur, partenaire
+    phone_number: str
+    model_config = ConfigDict(from_attributes=True)
 
 class ExterneBase(BaseModel):
     name: str

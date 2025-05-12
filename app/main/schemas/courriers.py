@@ -46,6 +46,10 @@ class Mail(BaseModel):
     content:str
     number:str
     is_transferred: bool
+    received_by_office :bool
+    is_diffused:bool
+    is_open: bool
+    status:str
     received_at:Optional[datetime]=None
     sent_at : Optional[datetime]=None
     documents: Optional[FileSlim2]=None
@@ -77,6 +81,7 @@ class MailSlimSender(BaseModel):
     content:str
     number:str
     is_transferred:bool
+    status : str 
     received_at:Optional[datetime]=None
     sent_at : Optional[datetime]=None
     documents: Optional[FileSlim2]=None
@@ -86,7 +91,7 @@ class MailSlimSender(BaseModel):
     forme:Optional[FormesSlim]=None
     canal_reception:Optional[CanauxReceptionCourierSlim]=None
     created_at: datetime
-    updated_at: Optional[str]=None
+    updated_at: Optional[datetime]=None
     model_config = ConfigDict(from_attributes=True)
 
 class MailSlimSenderResponseList(BaseModel):
@@ -108,6 +113,13 @@ class MailUpdateStatus(BaseModel):
 
 class MailDetails(BaseModel):
     uuid : str
+
+
+class MailSlim2(BaseModel):
+    uuid:str
+    subject:str
+    number:str
+    model_config = ConfigDict(from_attributes=True)
 
 
 

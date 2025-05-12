@@ -149,15 +149,7 @@ def is_valid_password(password):
 # Simuler une base de données mémoire pour suivre le dernier numéro du jour
 last_counters = {}
 
-def generate_courrier_code():
-    today_str = datetime.now().strftime('%Y%m%d')
-    
-    # Si on a déjà des courriers pour aujourd'hui, on incrémente
-    if today_str in last_counters:
-        last_counters[today_str] += 1
-    else:
-        last_counters[today_str] = 1
-
-    # Format du code : CR-YYYYMMDD-XXXX
-    counter_str = str(last_counters[today_str]).zfill(4)
-    return f"CR-{today_str}-{counter_str}"
+def generate_random_courrier_code():
+    today = datetime.today().strftime("%Y%m%d")
+    random_number = random.randint(1, 9999)
+    return f"CR-{today}-{random_number:04d}"

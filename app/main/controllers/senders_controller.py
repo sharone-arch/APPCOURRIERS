@@ -79,6 +79,7 @@ def get(
     db: Session = Depends(get_db),
     page: int = 1,
     per_page: int = 25,
+    keyword:Optional[str]= None,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     """
@@ -89,6 +90,7 @@ def get(
         db, 
         page, 
         per_page, 
+        keyword=keyword
     )
 
 @router.get("/get_by_uuid", response_model=schemas.SenderResponse)

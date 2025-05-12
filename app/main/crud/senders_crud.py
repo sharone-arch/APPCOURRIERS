@@ -120,9 +120,21 @@ class CRUDSender(CRUDBase[models. Sender, schemas.SenderCreate, schemas.SenderUp
         db:Session,
         page:int = 1,
         per_page:int = 25,
+        keyword:Optional[str]= None
 
     ):
         record_query = db.query(models.Sender).filter( models.Sender.is_deleted == False)
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    models.Sender.last_name.ilike('%' + str(keyword) + '%'),
+                    models.Sender.first_name.ilike('%' + str(keyword) + '%'),
+                    models.Sender.email.ilike('%' + str(keyword) + '%'),
+                    models.Sender.second_phone_number.ilike('%' + str(keyword) + '%'),
+                    models.Sender.address.ilike('%' + str(keyword) + '%')
+
+                )
+            )
 
         total = record_query.count()
         record_query = record_query.offset((page - 1) * per_page).limit(per_page)

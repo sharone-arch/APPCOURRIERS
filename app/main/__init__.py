@@ -30,8 +30,6 @@ description = '''
     Il s'agit de l'API de Gestion des Courriers, conçue pour rationaliser et automatiser le traitement des courriers entrants et sortants au sein d'une organisation. Elle permet un suivi efficace, un tri et un archivage des documents et colis, garantissant des flux de communication fluides et une gestion rapide de la correspondance importante.
 '''
 
-
-
 app = FastAPI(
     title=Config.PROJECT_NAME,
     description=description,

@@ -9,3 +9,4 @@ from .externes_crud import *
 from .departments_crud import *
 from .type_crud import *
 from .senders_crud import *
+from .mail_transmissions_crud import *

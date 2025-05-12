@@ -101,12 +101,14 @@ async def get_mail_by_uuid(
     *,
     db: Session = Depends(get_db),
     uuid: str,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN", "SENDER"]))
 ):
     data = crud.courriers.get_by_uuid(db=db, uuid=uuid)
-    if not data:
-        raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+    if not data.is_open:
+        data.is_open = True
+        db.commit()
     return data
+
 
 @router.get("/get_many", response_model=None)
 def get(
@@ -152,40 +154,19 @@ def get(
         sender_uuid=current_user.uuid
     )
 
-@router.put("/send-receiver-mail", response_model=schemas.Msg)
-async def send_receiver_mail(
+
+
+
+@router.put("/udpate-status",response_model=schemas.Msg)
+async def update_status_mail(
     *,
     db: Session = Depends(get_db),
-    obj_in: schemas.MailDetails
+    status: str = Query(..., enum=["EN_TRAITEMENT","TRAITE","ARCHIVE"]),
+    obj_in:schemas.MailDetails
 ):
-    # 1. Récupération du courrier
-    mail = crud.courriers.get_by_uuid(db=db, uuid=obj_in.uuid)
-    if not mail:
-        raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
-    # 2. Vérifier si déjà transféré
-    if mail.is_transferred:
-        raise HTTPException(status_code=400, detail=__(key="mail-is-already-send"))
-    # 3. Récupération du destinataire
-    receiver = crud.externe.get_by_uuid(db=db, uuid=mail.receiver_uuid)
-    if not receiver:
-        raise HTTPException(status_code=404, detail=__(key="receiver-not-found"))
-    # 4. Récupération de l’expéditeur
-    sender = crud.sender.get_by_uuid(db=db, uuid=mail.sender_uuid)
-    if not sender:
-        raise HTTPException(status_code=404, detail=__(key="sender-not-found"))
-
-    # 5. Mise à jour de l'état
-    mail.is_transferred = True
-    mail.sent_at = datetime.now()
-    db.commit()
-
-    # 6. Envoi de la notification
-    notify_receiver_new_mail(
-        email_to=receiver.email,
-        name=receiver.name,
-        subject=mail.subject,
-        content=mail.content,
-        sender=f"{sender.first_name} {sender.last_name}"
+    crud.courriers.update_status(
+        db=db, uuid=obj_in.uuid, status=status
     )
+    return {"message": __(key="mail-status-updated-successfully")}
 
-    return {"message": __(key="mail-transferred-successfully")}
+

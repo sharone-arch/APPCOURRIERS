@@ -2,13 +2,13 @@ from datetime import datetime
 import math
 import bcrypt
 from fastapi import BackgroundTasks, HTTPException
-from sqlalchemy import or_
+from sqlalchemy import String, cast, or_
 import re
 from typing import List, Optional, Union
 import uuid
 from app.main.core.i18n import __
 from sqlalchemy.orm import Session
-from app.main.core.security import generate_courrier_code
+from app.main.core.security import generate_random_courrier_code
 from app.main.crud.base import CRUDBase
 from app.main import models,schemas,crud
 from app.main.core.mail import notify_admin_new_couriers,notify_receiver_new_mail
@@ -42,7 +42,7 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
     
     @classmethod
     def create(cls, db: Session, *, obj_in: schemas.MailCreate, sender_uuid: str, background_tasks: BackgroundTasks):
-        number = generate_courrier_code()
+        number = generate_random_courrier_code()
         print(f"Code du nouveau courrier {number}")  # Exemple : CR-20250509-0001
         db_obj = models.Mail(
             uuid=str(uuid.uuid4()),
@@ -163,9 +163,10 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         if keyword:
             record_query = record_query.filter(
                 or_(
-                    models.Mail.subject.ilike('%' + str(keyword) + '%'),
-                    models.Mail.content.ilike('%' + str(keyword) + '%'),
-
+                    cast(models.Mail.subject, String).ilike('%' + str(keyword) + '%'),
+                    cast(models.Mail.content, String).ilike('%' + str(keyword) + '%'),
+                    cast(models.Mail.receiver, String).ilike('%' + str(keyword) + '%'),
+                    cast(models.Mail.number, String).ilike('%' + str(keyword) + '%'),
                 )
             )
         if status:
@@ -200,7 +201,7 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         keyword:Optional[str]= None,
         sender_uuid : Optional[str]=None
     ):
-        record_query = db.query(models.Mail).options(joinedload(models.Mail.documents,models.MailDocument.is_deleted==False)).filter(models.Mail.is_deleted == False,models.Mail.sender_uuid==sender_uuid)
+        record_query = db.query(models.Mail).filter(models.Mail.is_deleted == False,models.Mail.sender_uuid==sender_uuid)
         if keyword:
             record_query = record_query.filter(
                 or_(
@@ -227,5 +228,7 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
             current_page =page,
             data =record_query
         )
+    
+    
     
 courriers= CRUDCourriers(models.courriers)

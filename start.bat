@@ -12,6 +12,9 @@ Mes Infos de connexion
 admin@example.com
 &1uTkqV<
 
+dev@gmail.com
+&1uTkqV<
+
 
 {
   "email": "chantal.mbarga@example.com",
