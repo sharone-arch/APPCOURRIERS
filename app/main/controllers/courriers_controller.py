@@ -101,12 +101,23 @@ async def get_mail_by_uuid(
     *,
     db: Session = Depends(get_db),
     uuid: str,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN", "SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
     data = crud.courriers.get_by_uuid(db=db, uuid=uuid)
     if not data.is_open:
         data.is_open = True
         db.commit()
+    return data
+
+
+@router.get("/get_by_uuid_sender", response_model=schemas.Mail)
+async def get_mail_by_uuid_sender(
+    *,
+    db: Session = Depends(get_db),
+    uuid: str,
+    current_user: models.User = Depends(TokenRequired(roles=["SENDER"]))
+):
+    data = crud.courriers.get_by_uuid(db=db, uuid=uuid)
     return data
 
 

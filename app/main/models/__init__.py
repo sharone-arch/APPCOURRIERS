@@ -17,3 +17,4 @@ from .transmission_logs import *
 from .mail_statistics import *
 from .documents_mails import *
 from .mail_transmissions import *
+from .courriers_arrivee import *

@@ -15,7 +15,9 @@ class MailStatus(str, Enum):
     EN_TRAITEMENT = "EN_TRAITEMENT"
     TRAITE = "TRAITE"
     ARCHIVE = "ARRIVE"
+    CACHET = "CACHET"
 
+    
 class Mail(Base):
     __tablename__ = "mails"
 

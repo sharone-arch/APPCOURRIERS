@@ -37,7 +37,7 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
             password_hash=get_password_hash(password),
             first_name=obj_in.first_name,
             last_name=obj_in.last_name,
-            role=models.UserRole.ADMIN,
+            role=obj_in.role,
             login = obj_in.login,
             avatar_uuid = obj_in.avatar_uuid
 
@@ -92,7 +92,7 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
     def get_all_users(cls, db: Session):
         return db.query(models.User).filter(
             models.User.is_deleted == False,
-            models.User.role.in_(["ADMIN", "EDIMESTRE","SUPER_ADMIN"])
+            models.User.role.in_(["ADMIN", "EDIMESTRE","SUPER_ADMIN","BUREAU_ORDRE","SECRETAIRE"])
         ).all()
     
     @classmethod
@@ -112,7 +112,7 @@ class CRUDUser(CRUDBase[models.User, schemas.UserCreate, schemas.UserUpdate]):
         per_page:int = 25,
 
     ):
-        record_query = db.query(models.User).filter( models.User.is_deleted == False,models.User.role.in_(["ADMIN", "EDIMESTRE","PROFESSEUR"]))
+        record_query = db.query(models.User).filter( models.User.is_deleted == False,models.User.role.in_(["ADMIN", "EDIMESTRE","BUREAU_ORDRE","SECRETAIRE"]))
 
         total = record_query.count()
         record_query = record_query.offset((page - 1) * per_page).limit(per_page)

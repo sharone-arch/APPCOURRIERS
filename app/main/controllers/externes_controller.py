@@ -86,9 +86,6 @@ async def get_all_receiver(
         keyword=keyword,
     )
 
-
-from fastapi import HTTPException
-
 @router.get("/get_by_uuid", response_model=schemas.ExterneSlim)
 async def get_data_by_uuid(
     *,

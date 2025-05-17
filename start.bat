@@ -2,22 +2,14 @@ uvicorn app.main:app --reload --port=9000
 uvicorn app.main:app --reload --port=8000
 
 
-test.user@example.com
-&D9>q=9(
+]pi8XH5[
+  user@example.com
 
 
 
-
-Mes Infos de connexion 
-admin@example.com
-&1uTkqV<
-
-dev@gmail.com
-&1uTkqV<
+SENDER 
+i<7AR1Q5
+sender1@gmail.com
 
 
-{
-  "email": "chantal.mbarga@example.com",
-  "password": ">8iTrW*>"
-}
-
+BUREAU ORDRE = Il\3[z6A

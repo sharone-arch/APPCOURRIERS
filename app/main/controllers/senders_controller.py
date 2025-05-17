@@ -80,7 +80,7 @@ def get(
     page: int = 1,
     per_page: int = 25,
     keyword:Optional[str]= None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    # current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     """
     get administrator with all data by passing filters

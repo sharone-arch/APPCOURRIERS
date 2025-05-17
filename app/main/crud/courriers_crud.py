@@ -39,62 +39,67 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         return count + 1
 
 
-    
     @classmethod
-    def create(cls, db: Session, *, obj_in: schemas.MailCreate, sender_uuid: str, background_tasks: BackgroundTasks):
+    def create(cls, db: Session, *, obj_in, sender_uuid: str, background_tasks: BackgroundTasks):
         number = generate_random_courrier_code()
-        print(f"Code du nouveau courrier {number}")  # Exemple : CR-20250509-0001
+        common_uuid = str(uuid.uuid4())
+        print(f"Code du nouveau courrier {number}")
+
         db_obj = models.Mail(
-            uuid=str(uuid.uuid4()),
+            uuid=common_uuid,
             subject=obj_in.subject,
             content=obj_in.content,
             receiver_uuid=obj_in.receiver_uuid,
-            document_uuid = obj_in.document_uuid,
+            document_uuid=obj_in.document_uuid,
             type_uuid=obj_in.type_uuid,
             nature_uuid=obj_in.nature_uuid,
             forme_uuid=obj_in.forme_uuid,
             canal_reception_uuid=obj_in.canal_reception_uuid,
             sender_uuid=sender_uuid,
-            number = number
+            number=number
         )
         db.add(db_obj)
         db.commit()
-        db.refresh(db_obj)
+        db.flush()  # S'assurer que le Mail est inséré avant la relation
 
-        # Récupération des infos de l'expéditeur et du destinataire
-        sender = db.query(models.Sender).filter(models.Sender.uuid == sender_uuid).first()
-        if not sender:
-            raise HTTPException(status_code=404,detail=__(key="sender-not-found"))
-        receiver = db.query(models.Externe).filter(models.Externe.uuid == obj_in.receiver_uuid).first()
-        if not receiver:
-            raise HTTPException(status_code=404,detail=__(key="receiver-not-found"))
-
-        admins = crud.user.get_all_users(db=db)
-        if not admins:
-            raise HTTPException(status_code=404,detail=__(key="admins-not-found"))
-
-        # Notifications aux admins
-        for admin in admins:
-            background_tasks.add_task(
-                notify_admin_new_couriers,
-                email_to=admin.email,
-                name=f"{admin.first_name} {admin.last_name}",
-                subject=obj_in.subject,
-                content=obj_in.content,
-                sender=f"{sender.first_name} {sender.last_name}"
-            )
-
-        # Notification au destinataire
-        background_tasks.add_task(
-            notify_receiver_new_mail,
-            email_to=receiver.email,
-            name=receiver.name,
-            subject=obj_in.subject,
-            content=obj_in.content,
-            sender=f"{sender.first_name} {sender.last_name}"
+        new_transmission = models.CourrierArrive(
+            uuid=str(uuid.uuid4()),
+            entite=models.Entite.BUREAU_ORDRE,         # ✅ Utilisation correcte
+            action=models.Actions.RECEPTION,           # ✅ Utilisation correcte
+            mail_uuid=db_obj.uuid,
+            added_by=sender_uuid
         )
+        db.add(new_transmission)
+        db.commit()
+        db.refresh(new_transmission)
+
+        # ✅ Si tu veux réactiver les notifications plus tard, décommente ci-dessous
+        # sender = db.query(models.Sender).filter(models.Sender.uuid == sender_uuid).first()
+        # receiver = db.query(models.Externe).filter(models.Externe.uuid == obj_in.receiver_uuid).first()
+        # admins = crud.user.get_all_users(db=db)
+
+        # if sender and receiver and admins:
+        #     for admin in admins:
+        #         background_tasks.add_task(
+        #             notify_admin_new_couriers,
+        #             email_to=admin.email,
+        #             name=f"{admin.first_name} {admin.last_name}",
+        #             subject=obj_in.subject,
+        #             content=obj_in.content,
+        #             sender=f"{sender.first_name} {sender.last_name}"
+        #         )
+
+        #     background_tasks.add_task(
+        #         notify_receiver_new_mail,
+        #         email_to=receiver.email,
+        #         name=receiver.name,
+        #         subject=obj_in.subject,
+        #         content=obj_in.content,
+        #         sender=f"{sender.first_name} {sender.last_name}"
+        #     )
 
         return db_obj
+
 
     @classmethod
     def update(cls, db: Session, *, obj_in: schemas.MailUpdate, sender_uuid: str):
