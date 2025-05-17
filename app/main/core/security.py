@@ -144,3 +144,12 @@ def is_valid_password(password):
 
   return (len(password) >= min_length and
           lowercase and uppercase and number)
+
+
+# Simuler une base de données mémoire pour suivre le dernier numéro du jour
+last_counters = {}
+
+def generate_random_courrier_code():
+    today = datetime.today().strftime("%Y%m%d")
+    random_number = random.randint(1, 9999)
+    return f"CR-{today}-{random_number:04d}"

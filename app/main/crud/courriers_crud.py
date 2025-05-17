@@ -1,113 +1,234 @@
+from datetime import datetime
 import math
 import bcrypt
-from fastapi import HTTPException
-from sqlalchemy import or_
+from fastapi import BackgroundTasks, HTTPException
+from sqlalchemy import String, cast, or_
 import re
 from typing import List, Optional, Union
 import uuid
 from app.main.core.i18n import __
-from app.main.core.security import generate_password, get_password_hash,verify_password
 from sqlalchemy.orm import Session
+from app.main.core.security import generate_random_courrier_code
 from app.main.crud.base import CRUDBase
-from app.main import models,schemas
-from app.main.core.mail import send_account_creation_email
+from app.main import models,schemas,crud
+from app.main.core.mail import notify_admin_new_couriers,notify_receiver_new_mail
+from functools import partial
+from sqlalchemy.orm import joinedload
 
-
-
-class CRUDCourriers(CRUDBase[models.Courriers, schemas.CourriersBaseCreate, schemas.CourriersBaseUpdate]):
+class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete]):
 
     @classmethod
     def get_by_uuid(cls, db: Session, *, uuid: str) : 
-        return db.query(models.Courriers).filter(models.Courriers.uuid == uuid ,models.Courriers.is_deleted==False).first()
+        return db.query(models.Mail).filter(models.Mail.uuid == uuid ,models.Mail.is_deleted==False).first()
+    
+
+    @classmethod
+    def get_all_mail_by_uuid(cls, db: Session, *, uuid: str):
+        return db.query(models.Mail).options(joinedload(models.Mail.documents,models.MailDocument.is_deleted==False,models.Mail.uuid==uuid)).filter(models.Mail.is_deleted == False)
+    
+
+    @classmethod
+    def get_by_subject(cls, db: Session, *, subject: str) : 
+        return db.query(models.Mail).filter(models.Mail.subject == subject ,models.Mail.is_deleted==False).first()
     
     @classmethod
-    def create(cls, db: Session, *, obj_in: schemas.CourriersBaseCreate,created_by:str):
-        new_courrier = models.Courriers(
+    def get_daily_counter(cls,*,db:Session):
+        today_str = datetime.now().strftime("%Y%m%d")
+        # Exemple avec SQLAlchemy
+        count = db.query(models.Mail).filter(models.Mail.is_deleted==False,models.Mail.created_at.startswith(today_str)).count()
+        return count + 1
+
+
+    
+    @classmethod
+    def create(cls, db: Session, *, obj_in: schemas.MailCreate, sender_uuid: str, background_tasks: BackgroundTasks):
+        number = generate_random_courrier_code()
+        print(f"Code du nouveau courrier {number}")  # Exemple : CR-20250509-0001
+        db_obj = models.Mail(
             uuid=str(uuid.uuid4()),
-            titre=obj_in.titre,
-            date_arrivee=obj_in.date_arrivee,
-            date_depart=obj_in.date_depart,
-            contenu=obj_in.contenu,
-            created_by=created_by,
+            subject=obj_in.subject,
+            content=obj_in.content,
+            receiver_uuid=obj_in.receiver_uuid,
+            document_uuid = obj_in.document_uuid,
+            type_uuid=obj_in.type_uuid,
+            nature_uuid=obj_in.nature_uuid,
+            forme_uuid=obj_in.forme_uuid,
+            canal_reception_uuid=obj_in.canal_reception_uuid,
+            sender_uuid=sender_uuid,
+            number = number
         )
-        db.add(new_courrier)
+        db.add(db_obj)
         db.commit()
-        db.refresh(new_courrier)
-        return new_courrier
+        db.refresh(db_obj)
 
-    @classmethod
-    def update(cls, db: Session, *, uuid: str, obj_in: schemas.CourriersBaseUpdate) -> models.courriers:
-        Courriers = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
-        if not Courriers:
-            raise HTTPException(status_code=404, detail=__(key="courriers-not-found"))
-       
-        db.flush()
-        db.commit()
-        db.refresh(Courriers)
-        return Courriers
+        # Récupération des infos de l'expéditeur et du destinataire
+        sender = db.query(models.Sender).filter(models.Sender.uuid == sender_uuid).first()
+        if not sender:
+            raise HTTPException(status_code=404,detail=__(key="sender-not-found"))
+        receiver = db.query(models.Externe).filter(models.Externe.uuid == obj_in.receiver_uuid).first()
+        if not receiver:
+            raise HTTPException(status_code=404,detail=__(key="receiver-not-found"))
 
-    @classmethod
-    def soft_delete(cls, db: Session, *, uuid: str) -> None:
-        Courriers = cls.get_by_uuid(db=db, uuid=uuid)
-        if not Courriers:
-            raise HTTPException(status_code=404, detail=__(key="courriers-not-found"))
-        Courriers.is_deleted = True
-        db.commit()
-        
-    
-    @classmethod
-    def delete(cls, db: Session, *, uuid: str) -> None:
-        Courriers = cls.get_by_uuid(db=db, uuid=uuid)
-        if not Courriers:
-            raise HTTPException(status_code=404, detail=__(key="courriers-not-found"))
-        db.delete
-        db.commit()
-        
+        admins = crud.user.get_all_users(db=db)
+        if not admins:
+            raise HTTPException(status_code=404,detail=__(key="admins-not-found"))
 
-
-    
-
-    @classmethod
-    def get_all(cls, db: Session) -> List[ models.Courriers]:
-        return db.query(models.CanauxReceptionCourier).filter(models.CanauxReceptionCourier.is_deleted == False).all()
-
-    @classmethod
-    def get_many(
-            cls,
-            *,
-            db: Session,
-            page: int = 1,
-            per_page: int = 30,
-            order: Optional[str] = None,
-            order_field: Optional[str] = None,
-            keyword: Optional[str] = None
-        ):
-            if page < 1:
-                page = 1
-
-            record_query = db.query(models.courriers).filter(models.Courriers.is_deleted == False)
-
-            if keyword:
-                record_query = record_query.filter(
-                    or_(
-                        models.CanauxReceptionCourier.name.ilike(f"%{keyword}%")
-                    )
-                )
-
-            if order and order_field and hasattr(models.courriers, order_field):
-                if order.lower() == "asc":
-                    record_query = record_query.order_by(getattr(models.courriers, order_field).asc())
-                else:
-                    record_query = record_query.order_by(getattr(models.courriers, order_field).desc())
-            total = record_query.count()
-            record_query = record_query.offset((page - 1) * per_page).limit(per_page).all()
-
-            return schemas.CourriersResponseList(
-                total=total,
-                pages=math.ceil(total / per_page),
-                per_page=per_page,
-                current_page=page,
-                data=record_query
+        # Notifications aux admins
+        for admin in admins:
+            background_tasks.add_task(
+                notify_admin_new_couriers,
+                email_to=admin.email,
+                name=f"{admin.first_name} {admin.last_name}",
+                subject=obj_in.subject,
+                content=obj_in.content,
+                sender=f"{sender.first_name} {sender.last_name}"
             )
 
-Courriers= CRUDCourriers(models.courriers)
+        # Notification au destinataire
+        background_tasks.add_task(
+            notify_receiver_new_mail,
+            email_to=receiver.email,
+            name=receiver.name,
+            subject=obj_in.subject,
+            content=obj_in.content,
+            sender=f"{sender.first_name} {sender.last_name}"
+        )
+
+        return db_obj
+
+    @classmethod
+    def update(cls, db: Session, *, obj_in: schemas.MailUpdate, sender_uuid: str):
+        db_obj = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+
+        # Mise à jour des champs du mail
+        db_obj.subject = obj_in.subject if obj_in.subject else db_obj.subject
+        db_obj.content = obj_in.content if obj_in.content else db_obj.content
+        db_obj.receiver_uuid = obj_in.receiver_uuid if obj_in.receiver_uuid else db_obj.receiver_uuid
+        db_obj.type_uuid = obj_in.type_uuid if obj_in.type_uuid else db_obj.type_uuid
+        db_obj.nature_uuid = obj_in.nature_uuid if obj_in.nature_uuid else db_obj.nature_uuid
+        db_obj.forme_uuid = obj_in.forme_uuid if obj_in.forme_uuid else db_obj.forme_uuid
+        db_obj.canal_reception_uuid = obj_in.canal_reception_uuid if obj_in.canal_reception_uuid else db_obj.canal_reception_uuid
+        db_obj.document_uuid = obj_in.document_uuid if obj_in.document_uuid else db_obj.document_uuid
+        sender_uuid = sender_uuid
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
+    @classmethod
+    def soft_delete(cls,db:Session,*,uuid:str):
+        db_obj = cls.get_by_uuid(db=db,uuid=uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
+        db_obj.is_deleted = False
+        db.commit()
+    
+    @classmethod
+    def delete(cls,db:Session,*,uuid:str):
+        db_obj = cls.get_by_uuid(db=db,uuid=uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
+        db.delete(db_obj)
+        db.commit()
+
+    @classmethod
+    def update_status(cls,db:Session,uuid:str,status:str):
+        db_obj = cls.get_by_uuid(db=db,uuid=uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
+        db_obj.status = status
+        db.commit()
+        
+    @classmethod
+    def appose_cachet(cls,db:Session,uuid:str,status:str):
+        db_obj = cls.get_by_uuid(db=db,uuid=uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404,detail=__(key="mail-not-found"))
+        db_obj.status = status
+        db.commit()
+
+    
+    @classmethod
+    def get_many(
+        cls,
+        db:Session,
+        page:int = 1,
+        per_page:int = 30,
+        order:Optional[str] = None,
+        status:Optional[str] = None,
+        keyword:Optional[str]= None
+    ):
+        record_query = db.query(models.Mail).filter(models.Mail.is_deleted == False)
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    cast(models.Mail.subject, String).ilike('%' + str(keyword) + '%'),
+                    cast(models.Mail.content, String).ilike('%' + str(keyword) + '%'),
+                    cast(models.Mail.receiver, String).ilike('%' + str(keyword) + '%'),
+                    cast(models.Mail.number, String).ilike('%' + str(keyword) + '%'),
+                )
+            )
+        if status:
+            record_query = record_query.filter(models.Mail.status == status)
+        
+        if order and order.lower() == "asc":
+            record_query = record_query.order_by(models.Mail.date_added.asc())
+        
+        elif order and order.lower() == "desc":
+            record_query = record_query.order_by(models.Mail.date_added.desc())
+        total = record_query.count()
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)
+
+        return schemas.MailResponseList(
+            total = total,
+            pages = math.ceil(total/per_page),
+            per_page = per_page,
+            current_page =page,
+            data =record_query
+        )
+    
+
+
+    @classmethod
+    def get_sender_mail(
+        cls,
+        db:Session,
+        page:int = 1,
+        per_page:int = 30,
+        order:Optional[str] = None,
+        status:Optional[str] = None,
+        keyword:Optional[str]= None,
+        sender_uuid : Optional[str]=None
+    ):
+        record_query = db.query(models.Mail).filter(models.Mail.is_deleted == False,models.Mail.sender_uuid==sender_uuid)
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    models.Mail.subject.ilike('%' + str(keyword) + '%'),
+                    models.Mail.content.ilike('%' + str(keyword) + '%'),
+
+                )
+            )
+        if status:
+            record_query = record_query.filter(models.Mail.status == status)
+        
+        if order and order.lower() == "asc":
+            record_query = record_query.order_by(models.Mail.date_added.asc())
+        
+        elif order and order.lower() == "desc":
+            record_query = record_query.order_by(models.Mail.date_added.desc())
+        total = record_query.count()
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)
+
+        return schemas.MailSlimSenderResponseList(
+            total = total,
+            pages = math.ceil(total/per_page),
+            per_page = per_page,
+            current_page =page,
+            data =record_query
+        )
+    
+    
+    
+courriers= CRUDCourriers(models.courriers)

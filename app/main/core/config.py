@@ -40,20 +40,36 @@ class ConfigClass(BaseSettings):
         "pool_recycle": SQLALCHEMY_POOL_RECYCLE,
     }
 
-    CLOUDINARY_CLOUD_NAME:str = get_secret("CLOUDINARY_NAME","dhuqyxtzd")
-    CLOUDINARY_API_KEY:str = get_secret("CLOUDINARY_API_KEY","262968613296568")
-    CLOUDINARY_API_SECRET:str = get_secret("CLOUDINARY_API_SECRET","-3XMRDe_DSH3toVZRKyCUjjxk_Y")
+    # CLOUDINARY_CLOUD_NAME:str = get_secret("CLOUDINARY_NAME","dhuqyxtzd")
+    # CLOUDINARY_API_KEY:str = get_secret("CLOUDINARY_API_KEY","262968613296568")
+    # CLOUDINARY_API_SECRET:str = get_secret("CLOUDINARY_API_SECRET","-3XMRDe_DSH3toVZRKyCUjjxk_Y")
+    # CLOUDINARY_API_SECURE:bool = get_secret("CLOUDINARY_API_SECURE", True)
+    # IMAGE_MEDIUM_WIDTH: int = get_secret("IMAGE_MEDIUM_WIDTH", 600)
+    # IMAGE_THUMBNAIL_WIDTH: int = get_secret("IMAGE_THUMBNAIL_WIDTH", 300)
+    # UPLOADED_FILE_DEST: str = get_secret("UPLOADED_FILE_DEST", "uploads")
+
+
+    # MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "332824529764b1")
+    # MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "f7b4b082b6846c")
+    # MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
+    # MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
+    # EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "otybabesharone@gmail.com")
+
+
+    CLOUDINARY_CLOUD_NAME:str = get_secret("CLOUDINARY_NAME","do8fpzhen")
+    CLOUDINARY_API_KEY:str = get_secret("CLOUDINARY_API_KEY","839879112629286")
+    CLOUDINARY_API_SECRET:str = get_secret("CLOUDINARY_API_SECRET","jSQC_LoynIqEqDd81fJY1gTATVI")
     CLOUDINARY_API_SECURE:bool = get_secret("CLOUDINARY_API_SECURE", True)
     IMAGE_MEDIUM_WIDTH: int = get_secret("IMAGE_MEDIUM_WIDTH", 600)
     IMAGE_THUMBNAIL_WIDTH: int = get_secret("IMAGE_THUMBNAIL_WIDTH", 300)
     UPLOADED_FILE_DEST: str = get_secret("UPLOADED_FILE_DEST", "uploads")
 
 
-    MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "332824529764b1")
-    MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "f7b4b082b6846c")
+    MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "987982cf606b48")
+    MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "c08cbffad8f6c7")
     MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
     MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
-    EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "otybabesharone@gmail.com")
+    EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "laurentalphonsewilfried@gmail.com")
 
 
 

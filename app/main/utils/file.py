@@ -5,7 +5,6 @@ from docx import Document
 import PyPDF2
 from app.main.core.config import Config
 from mimetypes import MimeTypes
-
 from app.main.core.i18n import __
 
 

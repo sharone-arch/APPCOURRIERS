@@ -1,47 +1,126 @@
 from datetime import datetime
-from pydantic import BaseModel,EmailStr,ConfigDict
-from typing import List, Optional
-from app.main.models.users import UserRole
+from app.main.schemas.departments import DepartmentSlim
+from pydantic import BaseModel, ConfigDict
+from typing import List, Optional, Union
 
 
+from app.main.schemas.canaux_reception import CanauxReceptionCourierSlim
+from app.main.schemas.externes import ExterneInDB, ExterneSlim
+from app.main.schemas.file import FileSlim2
+from app.main.schemas.formes import FormesSlim
+from app.main.schemas.mail_documents import MailDocumentOut
+from app.main.schemas.nature import NatureCourriersSlim
+from app.main.schemas.type import TypeCourriersSlim
+from app.main.schemas.user import AddedBy
 
 
-class CourriersBase(BaseModel):
-    titre:str
-    date_arrivee  : datetime
-    date_depart : datetime
-    contenu:str
-    
+class MailBase(BaseModel):
+    subject:str
+    content:str
+    document_uuid:Optional[str]=None
+    receiver_uuid:str
+    type_uuid:str
+    nature_uuid:str
+    forme_uuid:str
+    canal_reception_uuid:str
 
 
-class CourriersBaseCreate(CourriersBase): # type: ignore
+class MailCreate(MailBase):
     pass
 
-class CourriersBaseUpdate(BaseModel):
-    uuid:str
-    titre:Optional[str]=None
-    date_arrivee:Optional[datetime]=None
-    date_depart:Optional[datetime]=None
-    contenu:Optional[str]=None
-   
+class MailUpdate(BaseModel):
+    uuid : Optional[str]=None
+    subject:Optional[str]=None
+    content:Optional[str]=None
+    document_uuid:Optional[str]=None
+    receiver_uuid:Optional[str]=None
+    type_uuid:Optional[str]=None
+    nature_uuid:Optional[str]=None
+    forme_uuid:Optional[str]=None
+    canal_reception_uuid:Optional[str]=None
 
-class CourriersDelete(BaseModel):
-    uuid: str
 
-class CourriersResponse(BaseModel):
+class Mail(BaseModel):
     uuid:str
-    titre:str
-    date_arrivee:str
-    date_depart:datetime
-    contenu:datetime
+    subject:str
+    content:str
+    number:str
+    is_transferred: bool
+    received_by_office :bool
+    is_diffused:bool
+    is_open: bool
+    status:str
+    received_at:Optional[datetime]=None
+    sent_at : Optional[datetime]=None
+    documents: Optional[FileSlim2]=None
+    receiver:Optional[ExterneSlim]=None
+    type:Optional[TypeCourriersSlim]=None
+    nature:Optional[NatureCourriersSlim]=None
+    forme:Optional[FormesSlim]=None
+    canal_reception:Optional[CanauxReceptionCourierSlim]=None
+    sender : Optional[AddedBy]=None
+    created_at: datetime
+    updated_at: Optional[datetime]=None
     model_config = ConfigDict(from_attributes=True)
 
-class CourriersResponseList(BaseModel):
+
+class MailResponseList(BaseModel):
     total:int
     pages:int
     per_page:int
     current_page :int
-    data : List[CourriersResponse]
+    data : List[Mail]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+
+class MailSlimSender(BaseModel):
+    uuid:str
+    subject:str
+    content:str
+    number:str
+    is_transferred:bool
+    status : str 
+    received_at:Optional[datetime]=None
+    sent_at : Optional[datetime]=None
+    documents: Optional[FileSlim2]=None
+    receiver:Optional[ExterneSlim]=None
+    type:Optional[TypeCourriersSlim]=None
+    nature:Optional[NatureCourriersSlim]=None
+    forme:Optional[FormesSlim]=None
+    canal_reception:Optional[CanauxReceptionCourierSlim]=None
+    created_at: datetime
+    updated_at: Optional[datetime]=None
+    model_config = ConfigDict(from_attributes=True)
+
+class MailSlimSenderResponseList(BaseModel):
+    total:int
+    pages:int
+    per_page:int
+    current_page :int
+    data : List[MailSlimSender]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+
+class MailDelete(BaseModel):
+    uuid :str
+
+class MailUpdateStatus(BaseModel):
+    uuid :str
+
+class MailDetails(BaseModel):
+    uuid : str
+
+
+class MailSlim2(BaseModel):
+    uuid:str
+    subject:str
+    number:str
+    model_config = ConfigDict(from_attributes=True)
+
+
+
 

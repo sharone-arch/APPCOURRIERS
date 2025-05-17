@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Nouveau courrier reçu</title>
+</head>
+<body>
+  <p>Bonjour {{ name }},</p>
+
+  <p>Vous avez reçu un nouveau courrier via <strong>{{ project_name }}</strong>.</p>
+
+  <p><strong>Expéditeur :</strong> {{ sender }}</p>
+  <p><strong>Objet :</strong> {{ subject }}</p>
+  <p><strong>Contenu :</strong><br>{{ content }}</p>
+
+  <p>Veuillez vous connecter à la plateforme pour plus de détails.</p>
+
+  <br>
+  <p>Cordialement,<br>L'équipe {{ project_name }}</p>
+</body>
+</html>
