@@ -5,3 +5,4 @@ from .canaux_reception_courriers_crud import *
 from .courriers_crud import *
 from .formes_courriers_crud import *
 from .nature_courriers_crud import *
+from .type_courriers_crud import *
