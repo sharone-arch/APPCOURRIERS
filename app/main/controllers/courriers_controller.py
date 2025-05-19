@@ -14,6 +14,8 @@ from app.main.core.dependencies import TokenRequired
 
 
 router = APIRouter(prefix="/mails", tags=["mails"])
+
+
 @router.post("/create", response_model=schemas.Msg)
 async def create_mail(
     *,
@@ -130,7 +132,7 @@ def get(
     order:str= Query(None,enum=["ASC","DESC"]),
     status:Optional[str] = None,
     keyword:Optional[str]= None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN","SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
 ):
     
     return crud.courriers.get_many(
@@ -165,6 +167,24 @@ def get(
         sender_uuid=current_user.uuid
     )
 
+@router.get("/get-courrier-arrivees", response_model=None)
+def get_courrier_arrivees(
+    *,
+    db: Session = Depends(get_db),
+    page: int = 1,
+    per_page:int = 30,
+    order:str= Query(None,enum=["ASC","DESC"]),
+    keyword:Optional[str]= None,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+):
+    
+    return crud.courriers.get_mail_arrive(
+        db, 
+        page, 
+        per_page, 
+        order=order,
+        keyword=keyword,
+    )
 
 
 
@@ -181,3 +201,16 @@ async def update_status_mail(
     return {"message": __(key="mail-status-updated-successfully")}
 
 
+@router.post("/duplicate_mail", response_model=schemas.Msg)
+async def duplicate_mail(
+    *,
+    db: Session = Depends(get_db),
+    obj_in: schemas.MailDelete,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+):
+    mail = crud.courriers.get_by_uuid(db=db, uuid=obj_in.uuid)
+    if not mail.is_duplicate:
+        mail.is_duplicate = True
+        db.commit()
+    return {"message": __(key="mail-duplicated-successfully")}
+    

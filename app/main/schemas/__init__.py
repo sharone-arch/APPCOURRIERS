@@ -15,3 +15,4 @@ from .cahiers_transmission import *
 from .file import *
 from .senders import *
 from .mail_transmissions import *
+from .courriers_arrivees import *

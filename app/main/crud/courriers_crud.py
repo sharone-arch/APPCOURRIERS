@@ -99,6 +99,38 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         #     )
 
         return db_obj
+    
+    
+
+    # @classmethod
+    # def duplicate_mail(cls,db: Session, uuid_to_duplicate: str, sender_uuid: str):
+    #     original_mail = db.query(models.Mail).filter(models.Mail.uuid == uuid_to_duplicate).first()
+    #     if not original_mail:
+    #         raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+    #      # Marquer l'original comme duplicata
+    #     original_mail.is_duplicate = True
+    #     db.add(original_mail)
+    #     db.commit()  # commit ici pour sauvegarder la modif sur l'original
+        
+    #     db_obj = models.Mail(
+    #         uuid=str(uuid.uuid4()),
+    #         subject=original_mail.subject,
+    #         content=original_mail.content,
+    #         receiver_uuid=original_mail.receiver_uuid,
+    #         document_uuid=original_mail.document_uuid,
+    #         type_uuid=original_mail.type_uuid,
+    #         nature_uuid=original_mail.nature_uuid,
+    #         forme_uuid=original_mail.forme_uuid,
+    #         canal_reception_uuid=original_mail.canal_reception_uuid,
+    #         sender_uuid=sender_uuid,  # l'expéditeur qui duplique le courrier
+    #         number=original_mail.number,
+    #         is_duplicate=True  # <-- ici tu marques que c'est une duplication
+    #     )
+    #     db.add(db_obj)
+    #     db.commit()
+    #     return db_obj
+    #         # Récupérer le mail original
+    
 
 
     @classmethod
@@ -227,6 +259,42 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         record_query = record_query.offset((page - 1) * per_page).limit(per_page)
 
         return schemas.MailSlimSenderResponseList(
+            total = total,
+            pages = math.ceil(total/per_page),
+            per_page = per_page,
+            current_page =page,
+            data =record_query
+        )
+
+
+
+    @classmethod
+    def get_mail_arrive(
+        cls,
+        db:Session,
+        page:int = 1,
+        per_page:int = 30,
+        order:Optional[str] = None,
+        keyword:Optional[str]= None,
+    ):
+        record_query = db.query(models.CourrierArrive).filter(models.CourrierArrive.is_deleted == False)
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    models.CourrierArrive.action.ilike('%' + str(keyword) + '%'),
+                    models.CourrierArrive.entite.ilike('%' + str(keyword) + '%'),
+
+                )
+            )
+        if order and order.lower() == "asc":
+            record_query = record_query.order_by(models.CourrierArrive.date_added.asc())
+        
+        elif order and order.lower() == "desc":
+            record_query = record_query.order_by(models.CourrierArrive.date_added.desc())
+        total = record_query.count()
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)
+
+        return schemas.CourrierArriveList(
             total = total,
             pages = math.ceil(total/per_page),
             per_page = per_page,

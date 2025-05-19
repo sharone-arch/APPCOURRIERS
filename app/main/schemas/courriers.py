@@ -49,6 +49,7 @@ class Mail(BaseModel):
     received_by_office :bool
     is_diffused:bool
     is_open: bool
+    is_duplicate:bool
     status:str
     received_at:Optional[datetime]=None
     sent_at : Optional[datetime]=None

@@ -54,6 +54,8 @@ class Mail(Base):
 
     is_deleted = Column(Boolean,default=False)
     
+    is_arrived = Column(Boolean, default=False)
+    is_duplicate = Column(Boolean, default=False)
     
     is_transferred = Column(Boolean, default=False)
     is_archived = Column(Boolean, default=False)
