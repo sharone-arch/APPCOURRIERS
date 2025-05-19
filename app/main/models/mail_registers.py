@@ -22,7 +22,7 @@ class RegistresCourriers(Base):
     mail = relationship("Mail", foreign_keys=[mail_uuid])
 
     register_type = Column(String,default=RegisterType.ARRIVEE,nullable=True)
-    number = Column(String,nullable=True)
+    
 
     added_by = Column(String, ForeignKey("users.uuid"), nullable=False)
     creator = relationship("User", foreign_keys=[added_by])
