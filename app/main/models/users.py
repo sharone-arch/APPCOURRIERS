@@ -22,6 +22,7 @@ class UserRole(str, Enum):
     SENDER = "SENDER"
     BUREAU_ORDRE = "BUREAU_ORDRE"
     SECRETAIRE = "SECRETAIRE"
+    RECEIVER = "RECEIVER"
 
 class UserStatus(str, Enum):
     """

@@ -17,7 +17,7 @@ def create_Nature_courrier(
     *,
     db: Session = Depends(get_db),
     obj_in: schemas.NatureCourriersCreate,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     exist_name = crud.Nature.get_by_name(db=db, name=obj_in.name)
     if exist_name:
@@ -68,7 +68,7 @@ def get_all_nature(
     per_page: int = 10,
     order:str= Query(None,enum=["ASC","DESC"]),
     keyword: Optional[str] = None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER","BUREAU_ORDRE"]))
 ):
      return crud.Nature.get_many(
         db=db,

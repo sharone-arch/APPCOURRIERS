@@ -18,7 +18,7 @@ def create_channel(
     *,
     db: Session = Depends(get_db),
     obj_in: schemas.CanauxReceptionCreate,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     exist_name = crud.canaux.get_by_name(db=db, name=obj_in.name)
     if exist_name:
@@ -34,7 +34,7 @@ def create_channel(
 def get_all_channel(
     *,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     return crud.canaux.get_all(db=db)
 
@@ -46,7 +46,7 @@ def update_channel(
     *,
     db: Session = Depends(get_db),
     obj_in:schemas.CanauxReceptionUpdate,
-    current_user : models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     crud.canaux.update(db=db,obj_in=obj_in,added_by=current_user.uuid)
     return {"message" :__(key="canal-updated-successfully")}
@@ -58,7 +58,7 @@ def soft_delete(
     *,
     db: Session = Depends(get_db),
     obj_in: schemas.CanauxReceptionDelete,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     crud.canaux.soft_delete(db=db, uuid=obj_in.uuid)
     return {"message" :__(key="channel-deleted-successfully")}
@@ -69,7 +69,7 @@ def delete_channel(
     *,
     db: Session = Depends(get_db),
     obj_in: schemas.CanauxReceptionDelete,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     crud.canaux.delete(db=db, uuid=obj_in.uuid)
     return {"message" :__(key="channel-deleted-successfully")}
@@ -83,7 +83,7 @@ def get_all_canaux_chanel(
     order:str= Query(None,enum=["ASC","DESC"]),
     order_field: Optional[str] = None,
     keyword: Optional[str] = None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER","BUREAU_ORDRE"]))
 
 ):
     return crud.canaux.get_many(

@@ -28,6 +28,10 @@ class MailBase(BaseModel):
 class MailCreate(MailBase):
     pass
 
+class MailCreateAdmin(MailBase):
+    sender_uuid:str
+    pass
+
 class MailUpdate(BaseModel):
     uuid : Optional[str]=None
     subject:Optional[str]=None
@@ -38,6 +42,9 @@ class MailUpdate(BaseModel):
     nature_uuid:Optional[str]=None
     forme_uuid:Optional[str]=None
     canal_reception_uuid:Optional[str]=None
+
+class MailUpdateAdmin(MailUpdate):
+    sender_uuid:str
 
 
 class Mail(BaseModel):
@@ -54,7 +61,7 @@ class Mail(BaseModel):
     received_at:Optional[datetime]=None
     sent_at : Optional[datetime]=None
     documents: Optional[FileSlim2]=None
-    receiver:Optional[ExterneSlim]=None
+    receiver:Optional[AddedBy]=None
     type:Optional[TypeCourriersSlim]=None
     nature:Optional[NatureCourriersSlim]=None
     forme:Optional[FormesSlim]=None
@@ -86,7 +93,7 @@ class MailSlimSender(BaseModel):
     received_at:Optional[datetime]=None
     sent_at : Optional[datetime]=None
     documents: Optional[FileSlim2]=None
-    receiver:Optional[ExterneSlim]=None
+    receiver:Optional[AddedBy]=None
     type:Optional[TypeCourriersSlim]=None
     nature:Optional[NatureCourriersSlim]=None
     forme:Optional[FormesSlim]=None

@@ -67,7 +67,7 @@ def get_all_formes(
     order:str= Query(None,enum=["ASC","DESC"]),
     order_field: Optional[str] = None,
     keyword: Optional[str] = None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER","BUREAU_ORDRE"]))
 ):
      return crud.formes_couriers.get_many(
         db=db,

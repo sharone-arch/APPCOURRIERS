@@ -70,7 +70,7 @@ def get_all_type(
     per_page: int = 10,
     order: str = Query(None, enum=["ASC", "DESC"]),
     keyword: Optional[str] = None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER","BUREAU_ORDRE"]))
 ):
     return crud.type_couriers.get_many(  # Correction : appeler la méthode de classe directement
         db=db,

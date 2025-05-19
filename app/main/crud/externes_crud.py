@@ -9,6 +9,7 @@ from app.main.core.i18n import __
 from sqlalchemy.orm import Session
 from app.main.crud.base import CRUDBase
 from app.main import models,schemas
+from app.main.core.security import generate_password, get_password_hash,verify_password
 
 
 
@@ -34,8 +35,9 @@ class CRUDExternes(CRUDBase[models.Externe,schemas.ExterneBase,schemas.ExterneCr
 
     @classmethod
     def create(cls,db:Session,*,obj_in:schemas.ExterneCreate,created_by:str):
+        commond_uuid = str(uuid.uuid4())
         db_obj = models.Externe(
-            uuid = str(uuid.uuid4()),
+            uuid = commond_uuid,
             name = obj_in.name,
             email = obj_in.email,
             phone_number = obj_in.phone_number,
@@ -46,6 +48,20 @@ class CRUDExternes(CRUDBase[models.Externe,schemas.ExterneBase,schemas.ExterneCr
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
+        password: str = generate_password(8, 8)
+        print(f"User password: {password}")
+        new_user = models.User(
+            uuid = commond_uuid, 
+            email = obj_in.email,
+            phone_number = obj_in.phone_number,
+            first_name = obj_in.name,
+            last_name = obj_in.name,
+            role = models.UserRole.RECEIVER,
+            password_hash=get_password_hash(password)
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
         return db_obj
     
 

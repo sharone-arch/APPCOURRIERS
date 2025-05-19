@@ -16,6 +16,81 @@ from app.main.core.dependencies import TokenRequired
 router = APIRouter(prefix="/mails", tags=["mails"])
 
 
+
+
+@router.post("/create_admin", response_model=schemas.Msg)
+async def create_mail_admin(
+    *,
+    db: Session = Depends(get_db),
+    obj_in: schemas.MailCreateAdmin,
+    background_tasks: BackgroundTasks,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
+):
+    if obj_in.document_uuid:
+        document = crud.storage_crud.get_file_by_uuid(db=db, file_uuid=obj_in.document_uuid)
+        if not document:
+            raise HTTPException(status_code=404,detail=__(key="document-not-found"))
+    receiver = crud.user.get_by_uuid(db=db,uuid=obj_in.receiver_uuid)
+    if not receiver:
+        raise HTTPException(status_code=404,detail=__(key="receiver-not-found"))
+    sender = crud.user.get_by_uuid(db=db,uuid=obj_in.receiver_uuid)
+    if not sender:
+        raise HTTPException(status_code=404,detail=__(key="sender-not-found"))
+    type = crud.type_couriers.get_by_uuid(db=db,uuid=obj_in.type_uuid)
+    if not type:
+        raise HTTPException(status_code=404,detail=__(key="type-courier-not-found"))
+    nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
+    if not nature:
+         raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
+    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    if not forme:
+         raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
+    canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
+    if not canal_reception:
+        raise HTTPException(status_code=404,detail=__(key="canal-reception-not-found"))
+    crud.courriers.create_admin(db=db,obj_in=obj_in,background_tasks=background_tasks)
+    return schemas.Msg(message=__(key="mail-send-successfully"))
+
+
+
+@router.put("/update_admin",response_model=schemas.Msg)
+async def update_mail_admin(
+     *,
+    db: Session = Depends(get_db),
+    obj_in: schemas.MailUpdateAdmin,
+    current_user: models.User = Depends(TokenRequired(roles=["SENDER","SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
+):
+    if obj_in.document_uuid:
+        document = crud.storage_crud.get_file_by_uuid(db=db, file_uuid=obj_in.document_uuid)
+        if not document:
+            raise HTTPException(status_code=404,detail=__(key="document-not-found"))
+    receiver = crud.user.get_by_uuid(db=db,uuid=obj_in.receiver_uuid)
+    if not receiver:
+        raise HTTPException(status_code=404,detail=__(key="receiver-not-found"))
+    sender = crud.user.get_by_uuid(db=db,uuid=obj_in.receiver_uuid)
+    if not sender:
+        raise HTTPException(status_code=404,detail=__(key="sender-not-found"))
+    type = crud.type_couriers.get_by_uuid(db=db,uuid=obj_in.type_uuid)
+    if not type:
+        raise HTTPException(status_code=404,detail=__(key="type-courier-not-found"))
+    nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
+    if not nature:
+         raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
+    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    if not forme:
+         raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
+    canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
+    if not canal_reception:
+        raise HTTPException(status_code=404,detail=__(key="canal-reception-not-found"))
+    crud.courriers.update_admin(db=db,obj_in=obj_in)
+    return schemas.Msg(message=__(key="mail-updated-successfully"))
+
+
+
+
+
+
+
 @router.post("/create", response_model=schemas.Msg)
 async def create_mail(
     *,
@@ -82,7 +157,7 @@ async def soft_delete_mail(
      *,
     db: Session = Depends(get_db),
     obj_in: schemas.MailDelete,
-    current_user: models.User = Depends(TokenRequired(roles=["ADMIN","SUPER_ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["ADMIN","SUPER_ADMIN","SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     crud.courriers.soft_delete(db=db,uuid=obj_in.uuid)
     return schemas.Msg(message=__(key="mail-deleted-successfully"))
@@ -103,7 +178,7 @@ async def get_mail_by_uuid(
     *,
     db: Session = Depends(get_db),
     uuid: str,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     data = crud.courriers.get_by_uuid(db=db, uuid=uuid)
     if not data.is_open:
@@ -117,7 +192,7 @@ async def get_mail_by_uuid_sender(
     *,
     db: Session = Depends(get_db),
     uuid: str,
-    current_user: models.User = Depends(TokenRequired(roles=["SENDER"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SENDER","SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     data = crud.courriers.get_by_uuid(db=db, uuid=uuid)
     return data
@@ -132,7 +207,7 @@ def get(
     order:str= Query(None,enum=["ASC","DESC"]),
     status:Optional[str] = None,
     keyword:Optional[str]= None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     
     return crud.courriers.get_many(
@@ -175,7 +250,7 @@ def get_courrier_arrivees(
     per_page:int = 30,
     order:str= Query(None,enum=["ASC","DESC"]),
     keyword:Optional[str]= None,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     
     return crud.courriers.get_mail_arrive(
@@ -193,7 +268,8 @@ async def update_status_mail(
     *,
     db: Session = Depends(get_db),
     status: str = Query(..., enum=["EN_TRAITEMENT","TRAITE","ARCHIVE"]),
-    obj_in:schemas.MailDetails
+    obj_in:schemas.MailDetails,
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     crud.courriers.update_status(
         db=db, uuid=obj_in.uuid, status=status
@@ -206,7 +282,7 @@ async def duplicate_mail(
     *,
     db: Session = Depends(get_db),
     obj_in: schemas.MailDelete,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
 ):
     mail = crud.courriers.get_by_uuid(db=db, uuid=obj_in.uuid)
     if not mail.is_duplicate:

@@ -40,7 +40,7 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
 
 
     @classmethod
-    def create(cls, db: Session, *, obj_in, sender_uuid: str, background_tasks: BackgroundTasks):
+    def create(cls, db: Session, *, obj_in:schemas.MailCreate, sender_uuid: str, background_tasks: BackgroundTasks):
         number = generate_random_courrier_code()
         common_uuid = str(uuid.uuid4())
         print(f"Code du nouveau courrier {number}")
@@ -73,63 +73,127 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
         db.commit()
         db.refresh(new_transmission)
 
-        # ✅ Si tu veux réactiver les notifications plus tard, décommente ci-dessous
-        # sender = db.query(models.Sender).filter(models.Sender.uuid == sender_uuid).first()
-        # receiver = db.query(models.Externe).filter(models.Externe.uuid == obj_in.receiver_uuid).first()
-        # admins = crud.user.get_all_users(db=db)
+        sender = db.query(models.User).filter(models.User.uuid == sender_uuid).first()
+        receiver = db.query(models.User).filter(models.User.uuid == obj_in.receiver_uuid).first()
+        admins = crud.user.get_all_users(db=db)
 
-        # if sender and receiver and admins:
-        #     for admin in admins:
-        #         background_tasks.add_task(
-        #             notify_admin_new_couriers,
-        #             email_to=admin.email,
-        #             name=f"{admin.first_name} {admin.last_name}",
-        #             subject=obj_in.subject,
-        #             content=obj_in.content,
-        #             sender=f"{sender.first_name} {sender.last_name}"
-        #         )
+        if sender and receiver and admins:
+            for admin in admins:
+                background_tasks.add_task(
+                    notify_admin_new_couriers,
+                    email_to=admin.email,
+                    name=f"{admin.first_name} {admin.last_name}",
+                    subject=obj_in.subject,
+                    content=obj_in.content,
+                    sender=f"{sender.first_name} {sender.last_name}"
+                )
 
-        #     background_tasks.add_task(
-        #         notify_receiver_new_mail,
-        #         email_to=receiver.email,
-        #         name=receiver.name,
-        #         subject=obj_in.subject,
-        #         content=obj_in.content,
-        #         sender=f"{sender.first_name} {sender.last_name}"
-        #     )
+            background_tasks.add_task(
+                notify_receiver_new_mail,
+                email_to=receiver.email,
+                name=f"{receiver.first_name} {receiver.last_name}",
+                subject=obj_in.subject,
+                content=obj_in.content,
+                sender=f"{sender.first_name} {sender.last_name}"
+            )
 
         return db_obj
     
     
+    
+    
+    
+    
+    
+    @classmethod
+    def create_admin(cls, db: Session, *, obj_in:schemas.MailCreateAdmin, background_tasks: BackgroundTasks):
+        number = generate_random_courrier_code()
+        common_uuid = str(uuid.uuid4())
+        print(f"Code du nouveau courrier {number}")
 
-    # @classmethod
-    # def duplicate_mail(cls,db: Session, uuid_to_duplicate: str, sender_uuid: str):
-    #     original_mail = db.query(models.Mail).filter(models.Mail.uuid == uuid_to_duplicate).first()
-    #     if not original_mail:
-    #         raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
-    #      # Marquer l'original comme duplicata
-    #     original_mail.is_duplicate = True
-    #     db.add(original_mail)
-    #     db.commit()  # commit ici pour sauvegarder la modif sur l'original
+        db_obj = models.Mail(
+            uuid=common_uuid,
+            subject=obj_in.subject,
+            content=obj_in.content,
+            receiver_uuid=obj_in.receiver_uuid,
+            document_uuid=obj_in.document_uuid,
+            type_uuid=obj_in.type_uuid,
+            nature_uuid=obj_in.nature_uuid,
+            forme_uuid=obj_in.forme_uuid,
+            canal_reception_uuid=obj_in.canal_reception_uuid,
+            sender_uuid=obj_in.sender_uuid,
+            number=number
+        )
+        db.add(db_obj)
+        db.commit()
+        db.flush()
+        sender = db.query(models.User).filter(models.User.uuid == obj_in.sender_uuid).first()
+
+        # Vérification du destinataire et envoi de notification
+        receiver = db.query(models.User).filter(models.User.uuid == obj_in.receiver_uuid).first()
+        if receiver and receiver.email:
+            background_tasks.add_task(
+                notify_receiver_new_mail,
+                email_to=receiver.email,
+                name=receiver.name,
+                subject=obj_in.subject,
+                content=obj_in.content,
+                sender=f"{sender.first_name} {sender.last_name}" if sender else "Inconnu"
+            )
+
+        return db_obj
+    
+    
+    @classmethod
+    def update_admin(cls, db: Session, *, obj_in: schemas.MailUpdateAdmin):
+        db_obj = cls.get_by_uuid(db=db, uuid=obj_in.uuid)
+        if not db_obj:
+            raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+
+        # Mise à jour des champs du mail
+        db_obj.subject = obj_in.subject if obj_in.subject else db_obj.subject
+        db_obj.content = obj_in.content if obj_in.content else db_obj.content
+        db_obj.receiver_uuid = obj_in.receiver_uuid if obj_in.receiver_uuid else db_obj.receiver_uuid
+        db_obj.type_uuid = obj_in.type_uuid if obj_in.type_uuid else db_obj.type_uuid
+        db_obj.nature_uuid = obj_in.nature_uuid if obj_in.nature_uuid else db_obj.nature_uuid
+        db_obj.forme_uuid = obj_in.forme_uuid if obj_in.forme_uuid else db_obj.forme_uuid
+        db_obj.canal_reception_uuid = obj_in.canal_reception_uuid if obj_in.canal_reception_uuid else db_obj.canal_reception_uuid
+        db_obj.document_uuid = obj_in.document_uuid if obj_in.document_uuid else db_obj.document_uuid
+        db_obj.sender_uuid = obj_in.sender_uuid if obj_in.sender_uuid else db_obj.sender_uuid
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+    
+    
+
+    @classmethod
+    def duplicate_mail(cls,db: Session, uuid_to_duplicate: str, sender_uuid: str):
+        original_mail = db.query(models.Mail).filter(models.Mail.uuid == uuid_to_duplicate).first()
+        if not original_mail:
+            raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+         # Marquer l'original comme duplicata
+        original_mail.is_duplicate = True
+        db.add(original_mail)
+        db.commit()  # commit ici pour sauvegarder la modif sur l'original
         
-    #     db_obj = models.Mail(
-    #         uuid=str(uuid.uuid4()),
-    #         subject=original_mail.subject,
-    #         content=original_mail.content,
-    #         receiver_uuid=original_mail.receiver_uuid,
-    #         document_uuid=original_mail.document_uuid,
-    #         type_uuid=original_mail.type_uuid,
-    #         nature_uuid=original_mail.nature_uuid,
-    #         forme_uuid=original_mail.forme_uuid,
-    #         canal_reception_uuid=original_mail.canal_reception_uuid,
-    #         sender_uuid=sender_uuid,  # l'expéditeur qui duplique le courrier
-    #         number=original_mail.number,
-    #         is_duplicate=True  # <-- ici tu marques que c'est une duplication
-    #     )
-    #     db.add(db_obj)
-    #     db.commit()
-    #     return db_obj
-    #         # Récupérer le mail original
+        db_obj = models.Mail(
+            uuid=str(uuid.uuid4()),
+            subject=original_mail.subject,
+            content=original_mail.content,
+            receiver_uuid=original_mail.receiver_uuid,
+            document_uuid=original_mail.document_uuid,
+            type_uuid=original_mail.type_uuid,
+            nature_uuid=original_mail.nature_uuid,
+            forme_uuid=original_mail.forme_uuid,
+            canal_reception_uuid=original_mail.canal_reception_uuid,
+            sender_uuid=sender_uuid,  # l'expéditeur qui duplique le courrier
+            number=original_mail.number,
+            is_duplicate=True  # <-- ici tu marques que c'est une duplication
+        )
+        db.add(db_obj)
+        db.commit()
+        return db_obj
+            # Récupérer le mail original
     
 
 

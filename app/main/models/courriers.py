@@ -30,8 +30,8 @@ class Mail(Base):
     sender_uuid = Column(String, ForeignKey("users.uuid"), nullable=True)
     sender = relationship("User", foreign_keys=[sender_uuid])
 
-    receiver_uuid = Column(String, ForeignKey("externes.uuid"), nullable=True)
-    receiver = relationship("Externe", foreign_keys=[receiver_uuid])
+    receiver_uuid = Column(String, ForeignKey("users.uuid"), nullable=True)
+    receiver = relationship("User", foreign_keys=[receiver_uuid])
 
     type_uuid = Column(String, ForeignKey("type_couriers.uuid"), nullable=True)
     type = relationship("TypeCourriers", foreign_keys=[type_uuid])

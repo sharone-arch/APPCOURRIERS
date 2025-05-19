@@ -49,11 +49,11 @@ class ConfigClass(BaseSettings):
     # UPLOADED_FILE_DEST: str = get_secret("UPLOADED_FILE_DEST", "uploads")
 
 
-    # MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "332824529764b1")
-    # MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "f7b4b082b6846c")
-    # MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
-    # MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
-    # EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "otybabesharone@gmail.com")
+    MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "332824529764b1")
+    MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "f7b4b082b6846c")
+    MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
+    MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
+    EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "otybabesharone@gmail.com")
 
 
     CLOUDINARY_CLOUD_NAME:str = get_secret("CLOUDINARY_NAME","do8fpzhen")
@@ -65,11 +65,11 @@ class ConfigClass(BaseSettings):
     UPLOADED_FILE_DEST: str = get_secret("UPLOADED_FILE_DEST", "uploads")
 
 
-    MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "987982cf606b48")
-    MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "c08cbffad8f6c7")
-    MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
-    MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
-    EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "laurentalphonsewilfried@gmail.com")
+    # MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "987982cf606b48")
+    # MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "c08cbffad8f6c7")
+    # MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
+    # MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
+    # EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "laurentalphonsewilfried@gmail.com")
 
 
 
