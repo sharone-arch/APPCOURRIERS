@@ -55,13 +55,11 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
             content=obj_in.content,
             receiver_uuid=obj_in.receiver_uuid,
             document_uuid=obj_in.document_uuid,
-            document_uuid=obj_in.document_uuid,
             type_uuid=obj_in.type_uuid,
             nature_uuid=obj_in.nature_uuid,
             forme_uuid=obj_in.forme_uuid,
             canal_reception_uuid=obj_in.canal_reception_uuid,
             sender_uuid=sender_uuid,
-            number=number
             number=number
         )
         db.add(db_obj)

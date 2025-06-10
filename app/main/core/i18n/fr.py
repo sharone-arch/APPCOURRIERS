@@ -1,4 +1,4 @@
-{
+translation ={
   "phone_number-already-used": "Le numéro de téléphone est déjà utilisé",
   "second-phone-number-already-used": "Le second numéro de téléphone est déjà utilisé",
   "email-already-used": "L'email est déjà utilisée",

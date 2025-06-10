@@ -69,7 +69,7 @@ def get_all_formes(
     keyword: Optional[str] = None,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN","SENDER","BUREAU_ORDRE"]))
 ):
-     return crud.formes_couriers.get_many(
+    return crud.formes_courriers.get_many(
         db=db,
         page=page,
         per_page=per_page,
