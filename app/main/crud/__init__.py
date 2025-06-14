@@ -10,3 +10,6 @@ from .departments_crud import *
 from .type_crud import *
 from .senders_crud import *
 from .mail_transmissions_crud import *
+from .transmission_logs_crud import *
+from .mail_statistics_crud import *
+from .mail_registers_crud import *

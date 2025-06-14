@@ -16,3 +16,6 @@ from .file import *
 from .senders import *
 from .mail_transmissions import *
 from .courriers_arrivees import *
+from .transmission_logs import *
+from .mails_statistics import *
+from .mail_registers import *
