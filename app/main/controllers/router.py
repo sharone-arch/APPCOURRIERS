@@ -11,6 +11,7 @@ from .type_courriers_controller import router as type_courriers
 from .senders_controller import router as senders
 from .externes_controller import router as receiver
 from .mail_transmissions_controllers import router as mail_transmissions
+from .statistics_controller import  router as statistics
 api_router = APIRouter()
 
 api_router.include_router(migration)
@@ -25,4 +26,5 @@ api_router . include_router(type_courriers)
 api_router.include_router(senders)
 api_router.include_router(courriers)
 api_router.include_router(mail_transmissions)
+api_router.include_router(statistics)
 

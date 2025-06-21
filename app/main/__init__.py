@@ -128,8 +128,9 @@ async def sentry_exception(request: Request, call_next):
 
 @app.get("/", response_class=HTMLResponse)
 async def welcome():
-    with open('{}/app/main/templates/html/index.html'.format(os.getcwd(),encoding="utf-8")) as f:
-        return str(f.read())
+    with open(f"{os.getcwd()}/app/main/templates/html/index.html", encoding="utf-8") as f:
+        content = f.read()
+    return HTMLResponse(content=content, media_type="text/html; charset=utf-8")
 
 
 @app.on_event("startup")
