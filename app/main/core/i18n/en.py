@@ -74,6 +74,20 @@ translation = {
    "email-already-used":"email-already-used",
    "user-created-successfully":"user-created-successfully",
    "avatar-not-found":"avatar-not-found",
+   "mail-not-found":"mail-not-found",
+   "department-not-found":"department-not-found",
+   "statistique-created-successfully":"statistique-created-successfully",
+   "statistique-not-found":"statistique-not-found",
+   "mail-transferred-successfully":"mail-transferred-successfully",
+   "mail-received":"mail-received",
+   "mail-diffused":"mail-diffused",
+   "register-added-successfully":"register-added-successfully",
+   "register-not-found":"register-not-found",
+   "register-added-successfully":"register-added-successfully",
+   "register-not-found": "register-not-found",
+   "mail-send-successfully":"mail-send-successfully",
+   "name-is-already-exist":"name-is-already-exist",
+
 
    
    

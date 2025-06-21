@@ -2,8 +2,11 @@ import os
 from pydantic_settings import BaseSettings
 from typing import ClassVar, Optional,Dict,Any
 from pydantic import EmailStr, validator
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-# from pydantic import Base EmailStr,validator
+
 
 
 def get_secret(secret_name, default):
@@ -49,11 +52,19 @@ class ConfigClass(BaseSettings):
     # UPLOADED_FILE_DEST: str = get_secret("UPLOADED_FILE_DEST", "uploads")
 
 
-    MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "332824529764b1")
-    MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "f7b4b082b6846c")
-    MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
-    MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
-    EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "otybabesharone@gmail.com")
+    # MAILTRAP_USERNAME :str = get_secret("MAILTRAP_USERNAME", "332824529764b1")
+    # MAILTRAP_PASSWORD :str = get_secret("MAILTRAP_PASSWORD", "f7b4b082b6846c")
+    # MAILTRAP_HOST: ClassVar[str] = "smtp.mailtrap.io"  # Utilisation de ClassVar
+    # MAILTRAP_PORT: ClassVar[int] = 587  # Utilisation de ClassVar
+    # EMAILS_FROM_CLOUDINARY: str = get_secret("EMAILS_FROM_CLOUDINARY", "otybabesharone@gmail.com")
+
+    SMTP_USER = "otybabesharone@gmail.com"  # remplace par ton adresse Gmail
+    SMTP_PASSWORD = "tvuqfqnysqetdpwd"  # ton mot de passe d'application (celui que tu viens de générer)
+    SMTP_HOST = "smtp.gmail.com"
+    SMTP_PORT = 587  # port standard pour TLS (STARTTLS)
+    SMTP_TLS = True
+    SMTP_SSL = False
+
 
 
     CLOUDINARY_CLOUD_NAME:str = get_secret("CLOUDINARY_NAME","do8fpzhen")

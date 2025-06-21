@@ -17,7 +17,7 @@ def create_registre(
     current_user: models.User = Depends(TokenRequired(roles=["ADMIN", "SUPER_ADMIN"]))
 ):
     """Créer un nouvel enregistrement de transmission"""
-    db_obj = crud.registres_courriers.create(db=db, obj_in=obj_in)
+    db_obj = crud.registres_courriers.create(db=db, obj_in=obj_in, added_by=current_user.uuid)  # correction ici
     return db_obj
 
 

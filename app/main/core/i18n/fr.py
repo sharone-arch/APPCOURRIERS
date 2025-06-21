@@ -48,5 +48,19 @@ translation ={
   "mail-status-updated-successfully": "Statut du courrier mis à jour avec succès",
   "courrier-transferred-successfully": "Courrier transféré avec succès",
   "courrier-diffused": "Courrier diffusé avec succès",
-  "avatar-not-found": "Avatar introuvable"
+  "avatar-not-found": "Avatar introuvable",
+  "mail-not-found":"courrier introuvable",
+   "department-not-found":"département introuvable",
+   "statistique-created-successfully":"statistique créer avec succès",
+   "statistique-not-found":"statistique introuvable",
+   "mail-transferred-successfully":"courrier transférer avec succès",
+   "mail-received":"courrier reçu",
+   "mail-diffused":"courrier diffuser",
+   "register-added-successfully":"registre ajouter avec  succès",
+   "register-not-found":"registre introuvable",
+   "mail-send-successfully":"courrier envoyer avec succès",
+   "name-is-already-exist":"ce nom existe déjà",
+
+
+   
 }
