@@ -9,7 +9,7 @@ uvicorn app.main:app --reload --port=8000
 
 
 SENDER 
-i<7AR1Q5
+Sender@123
 sender1@gmail.com
 
 
