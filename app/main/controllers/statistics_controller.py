@@ -16,7 +16,7 @@ router = APIRouter(prefix="/statistics", tags=["statistics"])
 @router.get("/count-users", summary="Nombre total d'utilisateurs", description="Renvoie le nombre total d'utilisateurs valides selon leur rôle.")
 async def count_users(
     db: Session = Depends(get_db),
-    #current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
     total_users = db.query(models.User).filter(
         models.User.role.in_(["ADMIN", "EDIMESTRE", "SUPER_ADMIN", "BUREAU_ORDRE", "SECRETAIRE"]),
@@ -30,7 +30,7 @@ async def count_users(
 @router.get("/count-mails")
 async def count_mails(
         db: Session = Depends(get_db),
-        #current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+        current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
     total_mails = db.query(models.Mail).filter(models.Mail.is_deleted == False).count()
     return {"total_mails": total_mails}
@@ -39,7 +39,7 @@ async def count_mails(
 @router.get("/count-senders")
 async def count_senders(
         db: Session = Depends(get_db),
-        #current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+        current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
     total_senders = db.query(models.Sender).filter(models.Sender.is_deleted == False).count()
     return {"total_senders": total_senders}
@@ -48,7 +48,7 @@ async def count_senders(
 @router.get("/count-receivers")
 async def count_receivers(
         db: Session = Depends(get_db),
-        #current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+        current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
 ):
     total_receivers = db.query(models.Externe).filter(models.Externe.is_deleted == False).count()
     return {"total_receivers": total_receivers}
