@@ -19,7 +19,7 @@ class MailTransmissionCreate(MailTransmissionBase):
 class MailTransmission(BaseModel):
     mail : MailSlim2
     from_entity:AddedBySlim
-    to_entity:ExterneSlim2
+    to_entity:AddedBySlim
     transmitted_by:AddedBySlim
     transmitted_at:datetime
     note:Optional[str]=None

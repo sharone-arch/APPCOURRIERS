@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nouvelle note reçue</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      background-color: #ffffff;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #1f4283;
+    }
+    p {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .note {
+      background-color: #f1f1f1;
+      padding: 15px;
+      border-left: 4px solid #1f4283;
+      font-style: italic;
+      white-space: pre-line;
+      margin-top: 15px;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 13px;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Bonjour {{ name }},</h2>
+    <p>
+      Vous avez reçu une nouvelle note concernant un courrier envoyé dans le système <strong>{{ project_name }}</strong>.
+    </p>
+
+    <p><strong>Note reçue de {{ receiver }} :</strong></p>
+    <div class="note">
+      {{ note }}
+    </div>
+
+    <p>
+      Veuillez vous connecter à la plateforme pour plus de détails ou pour répondre si nécessaire.
+    </p>
+
+    <div class="footer">
+      &copy; {{ project_name }} - Tous droits réservés.
+    </div>
+  </div>
+</body>
+</html>

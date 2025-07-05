@@ -94,6 +94,7 @@ class MailSlimSender(BaseModel):
     sent_at : Optional[datetime]=None
     documents: Optional[FileSlim2]=None
     receiver:Optional[AddedBy]=None
+    sender: Optional[AddedBy] = None
     type:Optional[TypeCourriersSlim]=None
     nature:Optional[NatureCourriersSlim]=None
     forme:Optional[FormesSlim]=None

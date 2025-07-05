@@ -42,7 +42,7 @@ async def create_mail_admin(
     nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
     if not nature:
          raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
-    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    forme = crud.formes_courriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
     if not forme:
          raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
     canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
@@ -76,7 +76,7 @@ async def update_mail_admin(
     nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
     if not nature:
          raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
-    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    forme = crud.formes_courriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
     if not forme:
          raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
     canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
@@ -142,7 +142,7 @@ async def update_mail(
     nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
     if not nature:
          raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
-    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    forme = crud.formes_courriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
     if not forme:
          raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
     canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
@@ -192,7 +192,7 @@ async def get_mail_by_uuid_sender(
     *,
     db: Session = Depends(get_db),
     uuid: str,
-    current_user: models.User = Depends(TokenRequired(roles=["SENDER","SUPER_ADMIN", "ADMIN","BUREAU_ORDRE"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SENDER","SUPER_ADMIN", "ADMIN","BUREAU_ORDRE","RECEIVER"]))
 ):
     data = crud.courriers.get_by_uuid(db=db, uuid=uuid)
     return data
@@ -240,6 +240,28 @@ def get(
         status=status,
         keyword=keyword,
         sender_uuid=current_user.uuid
+    )
+
+
+@router.get("/get-receiver-mail", response_model=None)
+def get(
+        *,
+        db: Session = Depends(get_db),
+        page: int = 1,
+        per_page: int = 30,
+        order: str = Query(None, enum=["ASC", "DESC"]),
+        status: Optional[str] = None,
+        keyword: Optional[str] = None,
+        current_user: models.User = Depends(TokenRequired(roles=["RECEIVER"]))
+):
+    return crud.courriers.get_receiver_mail(
+        db,
+        page,
+        per_page,
+        order=order,
+        status=status,
+        keyword=keyword,
+        receiver_uuid=current_user.uuid
     )
 
 @router.get("/get-courrier-arrivees", response_model=None)

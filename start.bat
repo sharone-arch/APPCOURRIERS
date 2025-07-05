@@ -17,3 +17,8 @@ sender1@gmail.com
 BUREAU ORDRE
 milla@gmail.com
 Sharone@12345
+
+
+Receiver
+partenaire1@gmail.com
+Sender@123
