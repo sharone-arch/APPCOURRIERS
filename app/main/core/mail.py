@@ -142,6 +142,47 @@ def notify_receiver_new_mail(
 
 
 
+
+def notify_receiver_new_mail_receiver(
+    email_to: str,
+    name: str,
+    note:str,
+    receiver: str
+) -> None:
+    try:
+        # Chargement du template HTML
+        template_path = Path(Config.EMAIL_TEMPLATES_DIR) / "notify_receiver_new_mail_receiver.html"
+        html_template = template_path.read_text(encoding="utf-8")
+        html_content = Template(html_template).render(
+            name=name,
+            project_name=Config.PROJECT_NAME,
+            note=note,
+            receiver=receiver,
+        )
+
+        # Création de l’email
+        msg = MIMEMultipart()
+        msg["From"] = f"{Config.EMAILS_FROM_NAME} <{Config.EMAILS_FROM_EMAIL}>"
+        msg["To"] = email_to
+        msg["Subject"] = f"{Config.PROJECT_NAME} | Nouvelle note recu reçu"
+
+        msg.attach(MIMEText(html_content, "html"))
+
+        # Envoi via SMTP
+        with smtplib.SMTP(Config.SMTP_HOST, Config.SMTP_PORT) as server:
+            if Config.SMTP_TLS:
+                server.starttls()
+            server.login(Config.SMTP_USER, Config.SMTP_PASSWORD)
+            server.send_message(msg)
+
+        logging.info(f"[SMTP] Email envoyé à {email_to}")
+
+    except Exception as e:
+        logging.error(f"[SMTP] Erreur envoi mail : {e}")
+
+
+
+
 def send_reset_password_option2_email(email_to: str, name: str, otp: str):
     try:
         # Charger et rendre le template HTML

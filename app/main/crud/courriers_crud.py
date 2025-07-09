@@ -352,6 +352,53 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
             data=record_query
         )
 
+    @classmethod
+    def get_receiver_mail(
+            cls,
+            db: Session,
+            page: int = 1,
+            per_page: int = 30,
+            order: Optional[str] = None,
+            status: Optional[str] = None,
+            keyword: Optional[str] = None,
+            receiver_uuid: Optional[str] = None
+    ):
+        # Recherche des mails non supprimés envoyés par sender_uuid
+        record_query = db.query(models.Mail).filter(models.Mail.is_deleted == False,
+                                                    models.Mail.receiver_uuid == receiver_uuid)
+
+        # Filtre si mot clé sur sujet ou contenu
+        if keyword:
+            record_query = record_query.filter(
+                or_(
+                    models.Mail.subject.ilike('%' + str(keyword) + '%'),
+                    models.Mail.content.ilike('%' + str(keyword) + '%'),
+                )
+            )
+
+        # Filtre selon statut si précisé
+        if status:
+            record_query = record_query.filter(models.Mail.status == status)
+
+        # Tri ascendant
+        if order and order.lower() == "asc":
+            record_query = record_query.order_by(models.Mail.date_added.asc())
+        # Tri descendant
+        elif order and order.lower() == "desc":
+            record_query = record_query.order_by(models.Mail.date_added.desc())
+
+        total = record_query.count()  # Total des résultats
+        record_query = record_query.offset((page - 1) * per_page).limit(per_page)  # Pagination
+
+        # Retourne le schéma pour liste simplifiée de mails envoyés par un expéditeur
+        return schemas.MailSlimSenderResponseList(
+            total=total,
+            pages=math.ceil(total / per_page),
+            per_page=per_page,
+            current_page=page,
+            data=record_query
+        )
+
 
 
     @classmethod

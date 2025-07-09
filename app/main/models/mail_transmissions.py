@@ -21,8 +21,8 @@ class TransmissionsCourriers(Base):
     from_entity_uuid = Column(String, ForeignKey("users.uuid"), nullable=True)
     from_entity = relationship("User", foreign_keys=[from_entity_uuid])
 
-    to_entity_uuid = Column(String, ForeignKey("externes.uuid"), nullable=True)
-    to_entity = relationship("Externe", foreign_keys=[to_entity_uuid])
+    to_entity_uuid = Column(String, ForeignKey("users.uuid"), nullable=True)
+    to_entity = relationship("User", foreign_keys=[to_entity_uuid])
 
     transmitted_by_uuid = Column(String, ForeignKey("users.uuid"), nullable=True)
     transmitted_by = relationship("User", foreign_keys=[transmitted_by_uuid])

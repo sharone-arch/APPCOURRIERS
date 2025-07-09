@@ -11,7 +11,7 @@ from app.main.core.security import generate_password, get_password_hash, verify_
 from sqlalchemy.orm import Session
 from app.main.crud.base import CRUDBase
 from app.main import models, schemas, crud  # Import des modules de modèles, schémas et autres CRUDs
-from app.main.core.mail import notify_receiver_new_mail, send_account_creation_email  # Fonctions d'envoi d'email
+from app.main.core.mail import notify_receiver_new_mail, notify_receiver_new_mail_receiver
 
 
 
@@ -82,7 +82,45 @@ class CRUDMailTransmission(CRUDBase[models.TransmissionsCourriers, schemas.MailT
         )
         # Retourner l’objet transmission créé
         return db_obj
-    
+
+    @classmethod
+    def send_sender(cls, db: Session, *, obj_in: schemas.MailTransmissionCreate, transmitted_by_uuid: str):
+        mail = crud.courriers.get_by_uuid(db=db, uuid=obj_in.mail_uuid)
+        if not mail:
+            raise HTTPException(status_code=404, detail=__(key="mail-not-found"))
+
+
+        receiver = crud.externe.get_by_uuid(db=db, uuid=mail.receiver_uuid)
+        if not receiver:
+            raise HTTPException(status_code=404, detail=__(key="receiver-not-found"))
+
+
+        sender = crud.sender.get_by_uuid(db=db, uuid=mail.sender_uuid)
+        if not sender:
+            raise HTTPException(status_code=404, detail=__(key="sender-not-found"))
+
+
+        db_obj = models.TransmissionsCourriers(
+            uuid=str(uuid.uuid4()),  # Génération d’un UUID unique
+            mail_uuid=obj_in.mail_uuid,  # Association à ce courrier
+            from_entity_uuid=mail.receiver_uuid,  # UUID de l’expéditeur
+            to_entity_uuid=mail.sender_uuid,  # UUID du destinataire
+            transmitted_by_uuid=transmitted_by_uuid,  # UUID de l’utilisateur qui transmet
+            note=obj_in.note
+        )
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+
+        # Envoyer un email de notification au destinataire
+        notify_receiver_new_mail_receiver(
+            email_to=receiver.email,  # Email du destinataire
+            name=receiver.name,  # Nom du destinataire
+            note=obj_in.note,
+            receiver=f"{sender.first_name} {sender.last_name}"  # Nom complet de l’expéditeur
+        )
+
+        return db_obj
 
     @classmethod
     def get_many(

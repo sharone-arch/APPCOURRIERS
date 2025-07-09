@@ -53,8 +53,14 @@ async def count_receivers(
     total_receivers = db.query(models.Externe).filter(models.Externe.is_deleted == False).count()
     return {"total_receivers": total_receivers}
 
+
+    
+
 @router.get("/mail-statistics", summary="Statistiques des courriers par statut")
-async def get_mail_statistics(db: Session = Depends(get_db)):
+async def get_mail_statistics(
+        db: Session = Depends(get_db),
+        current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN"]))
+):
     # Requête groupée par statut
     stats = db.query(
         models.Mail.status,

@@ -32,6 +32,24 @@ async def send_receiver_mail(
     )
     return {"message": __(key="mail-transferred-successfully")}
 
+
+
+@router.post("/send-sender-mail",response_model=schemas.Msg)
+async def send_sender_mail(
+    *,
+    db: Session = Depends(get_db),
+    obj_in: schemas.MailTransmissionCreate,
+    current_user: models.User = Depends(TokenRequired(roles=["RECEIVER"]))
+):
+    """Send a mail to a receiver"""
+    crud.mail_transmissions.send_sender(
+        db=db,
+        obj_in=obj_in,
+        transmitted_by_uuid=current_user.uuid
+
+    )
+    return {"message": __(key="mail-transferred-successfully")}
+
 @router.put("/received-by-office",response_model=schemas.Msg)
 def receive_courrier(
     *,
