@@ -12,6 +12,10 @@ from .senders_controller import router as senders
 from .externes_controller import router as receiver
 from .mail_transmissions_controllers import router as mail_transmissions
 from .statistics_controller import  router as statistics
+from . MailAction_controller import router as MailAction
+from .out_list_controller import router as out_list
+from .mail_tracking_controller import router as mail_tracking
+from .archive_courrier_controller import router as archive_courrier
 api_router = APIRouter()
 
 api_router.include_router(migration)
@@ -27,4 +31,10 @@ api_router.include_router(senders)
 api_router.include_router(courriers)
 api_router.include_router(mail_transmissions)
 api_router.include_router(statistics)
+api_router .include_router(MailAction)
+api_router .include_router(out_list)
+api_router .include_router(mail_tracking)
+api_router .include_router(archive_courrier)
+
+
 

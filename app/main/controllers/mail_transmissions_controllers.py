@@ -21,7 +21,7 @@ async def send_receiver_mail(
     *,
     db: Session = Depends(get_db),
     obj_in: schemas.MailTransmissionCreate,
-    current_user: models.User = Depends(TokenRequired(roles=["ADMIN","SUPER_ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["ADMIN","SUPER_ADMIN","BUREAU_ORDRE"]))
 ):
     """Send a mail to a receiver"""
     crud.mail_transmissions.create(
@@ -37,7 +37,7 @@ def receive_courrier(
     *,
     db: Session = Depends(get_db),
     obj_in:schemas.MailDetails,
-    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN"]))
+    current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN","ADMIN",]))
 ):
     mail = crud.courriers.get_by_uuid(db=db,uuid=obj_in.uuid)
     if not mail:

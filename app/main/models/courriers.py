@@ -48,6 +48,8 @@ class Mail(Base):
 
     canal_reception_uuid = Column(String, ForeignKey("canaux_receptions.uuid"), nullable=True)
     canal_reception = relationship("CanauxReceptionCourier", foreign_keys=[canal_reception_uuid])
+    archives = relationship("ArchiveCourrier", back_populates="courrier", cascade="all, delete-orphan")
+
 
     status = Column(String,nullable=True, default=MailStatus.RECU)
     number = Column(String,nullable=True)

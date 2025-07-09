@@ -42,7 +42,7 @@ async def create_mail_admin(
     nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
     if not nature:
          raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
-    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    forme = crud.formes_courriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
     if not forme:
          raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
     canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
@@ -76,7 +76,7 @@ async def update_mail_admin(
     nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
     if not nature:
          raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
-    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    forme = crud.formes_courriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
     if not forme:
          raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
     canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)
@@ -142,7 +142,7 @@ async def update_mail(
     nature = crud.Nature.get_by_uuid(db=db,uuid=obj_in.nature_uuid)
     if not nature:
          raise HTTPException(status_code=404,detail=__(key="nature-courier-not-found"))
-    forme = crud.formes_couriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
+    forme = crud.formes_courriers.get_by_uuid(db=db,uuid=obj_in.forme_uuid)
     if not forme:
          raise HTTPException(status_code=404,detail=__(key="forme-courier-not-found"))
     canal_reception = crud.canaux.get_by_uuid(db=db,uuid=obj_in.canal_reception_uuid)

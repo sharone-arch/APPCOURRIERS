@@ -18,11 +18,11 @@ def create_forme_courrier(
     obj_in: schemas.FormesCourriersCreate,
     current_user: models.User = Depends(TokenRequired(roles=["SUPER_ADMIN", "ADMIN"]))
 ):
-    exist_name = crud.formes_couriers.get_by_name(db=db, name=obj_in.name)
+    exist_name = crud.formes_courriers.get_by_name(db=db, name=obj_in.name)
     if exist_name:
         raise HTTPException(status_code=409, detail=__(key="forme-courrier-already-exists"))
 
-    crud.formes_couriers.create(db, obj_in=obj_in, added_by=current_user.uuid)
+    crud.formes_courriers.create(db, obj_in=obj_in, added_by=current_user.uuid)
     return schemas.Msg(message=__(key="forme-courrier-created-successfully"))
 
 

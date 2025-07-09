@@ -139,7 +139,7 @@ class CRUDCourriers(CRUDBase[models.Mail, schemas.MailBase, schemas.MailDelete])
             background_tasks.add_task(
                 notify_receiver_new_mail,
                 email_to=receiver.email,
-                name=receiver.name,
+                name=f"{receiver.first_name} {receiver.last_name}" if sender else "Inconnu",
                 subject=obj_in.subject,
                 content=obj_in.content,
                 sender=f"{sender.first_name} {sender.last_name}" if sender else "Inconnu"

@@ -19,3 +19,7 @@ from .courriers_arrivees import *
 from .transmission_logs import *
 from .mails_statistics import *
 from .mail_registers import *
+from .MailAction import *
+from .out_list import *
+from .MailTracking import *
+from .ArchiveCourrier import *

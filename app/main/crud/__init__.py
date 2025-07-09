@@ -13,3 +13,7 @@ from .mail_transmissions_crud import *
 from .transmission_logs_crud import *
 from .mail_statistics_crud import *
 from .mail_registers_crud import *
+from .MailAction_crud import *
+from .out_list_crud import  *
+from .mail_tracking_crud import *
+from .archive_courrier_crud import *

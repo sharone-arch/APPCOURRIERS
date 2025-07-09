@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.main.models.db.base_class import Base
 from app.main import schemas, models
 
+
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
